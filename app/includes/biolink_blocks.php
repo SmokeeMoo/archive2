@@ -10,7 +10,34 @@
 $pro_blocks = \Altum\Plugin::is_active('pro-blocks') && file_exists(\Altum\Plugin::get('pro-blocks')->path . 'pro_blocks.php') ? include \Altum\Plugin::get('pro-blocks')->path . 'pro_blocks.php' : [];
 $ultimate_blocks = \Altum\Plugin::is_active('ultimate-blocks') && file_exists(\Altum\Plugin::get('ultimate-blocks')->path . 'ultimate_blocks.php') ? include \Altum\Plugin::get('ultimate-blocks')->path . 'ultimate_blocks.php' : [];
 $payment_blocks = \Altum\Plugin::is_active('payment-blocks') && file_exists(\Altum\Plugin::get('payment-blocks')->path . 'payment_blocks.php') ? include \Altum\Plugin::get('payment-blocks')->path . 'payment_blocks.php' : [];
-
+$menu_block = \Altum\Plugin::is_active('menu-block') && file_exists(\Altum\Plugin::get('menu-block')->path . 'menu_block.php') ? include \Altum\Plugin::get('menu-block')->path . 'menu_block.php' : [];
+$modal_block = \Altum\Plugin::is_active('modal-block') && file_exists(\Altum\Plugin::get('modal-block')->path . 'modal_block.php') ? include \Altum\Plugin::get('modal-block')->path . 'modal_block.php' : [];
+$preloader_block = \Altum\Plugin::is_active('preloader-block') && file_exists(\Altum\Plugin::get('preloader-block')->path . 'preloader_block.php') ? include \Altum\Plugin::get('preloader-block')->path . 'preloader_block.php' : [];
+$slider_block = \Altum\Plugin::is_active('slider-block') && file_exists(\Altum\Plugin::get('slider-block')->path . 'slider_block.php') ? include \Altum\Plugin::get('slider-block')->path . 'slider_block.php' : [];
+$cardslider_block = \Altum\Plugin::is_active('cardslider-block') && file_exists(\Altum\Plugin::get('cardslider-block')->path . 'cardslider_block.php') ? include \Altum\Plugin::get('cardslider-block')->path . 'cardslider_block.php' : [];
+$yamaps_block = \Altum\Plugin::is_active('yamaps-block') && file_exists(\Altum\Plugin::get('yamaps-block')->path . 'yamaps_block.php') ? include \Altum\Plugin::get('yamaps-block')->path . 'yamaps_block.php' : [];
+$tmprice_block = \Altum\Plugin::is_active('tmprice-block') && file_exists(\Altum\Plugin::get('tmprice-block')->path . 'tmprice_block.php') ? include \Altum\Plugin::get('tmprice-block')->path . 'tmprice_block.php' : [];
+$tmtimeline_block = \Altum\Plugin::is_active('tmtimeline-block') && file_exists(\Altum\Plugin::get('tmtimeline-block')->path . 'tmtimeline_block.php') ? include \Altum\Plugin::get('tmtimeline-block')->path . 'tmtimeline_block.php' : [];
+$tmfaq_block = \Altum\Plugin::is_active('tmfaq-block') && file_exists(\Altum\Plugin::get('tmfaq-block')->path . 'tmfaq_block.php') ? include \Altum\Plugin::get('tmfaq-block')->path . 'tmfaq_block.php' : [];
+$tmscrollindicator_block = \Altum\Plugin::is_active('tmscrollindicator-block') && file_exists(\Altum\Plugin::get('tmscrollindicator-block')->path . 'tmscrollindicator_block.php') ? include \Altum\Plugin::get('tmscrollindicator-block')->path . 'tmscrollindicator_block.php' : [];
+$tmscrollcards_block = \Altum\Plugin::is_active('tmscrollcards-block') && file_exists(\Altum\Plugin::get('tmscrollcards-block')->path . 'tmscrollcards_block.php') ? include \Altum\Plugin::get('tmscrollcards-block')->path . 'tmscrollcards_block.php' : [];
+$tmprogress_block = \Altum\Plugin::is_active('tmprogress-block') && file_exists(\Altum\Plugin::get('tmprogress-block')->path . 'tmprogress_block.php') ? include \Altum\Plugin::get('tmprogress-block')->path . 'tmprogress_block.php' : [];
+$tmnotification_block = \Altum\Plugin::is_active('tmnotification-block') && file_exists(\Altum\Plugin::get('tmnotification-block')->path . 'tmnotification_block.php') ? include \Altum\Plugin::get('tmnotification-block')->path . 'tmnotification_block.php' : [];
+$tmscrolltimeline_block = \Altum\Plugin::is_active('tmscrolltimeline-block') && file_exists(\Altum\Plugin::get('tmscrolltimeline-block')->path . 'tmscrolltimeline_block.php') ? include \Altum\Plugin::get('tmscrolltimeline-block')->path . 'tmscrolltimeline_block.php' : [];
+$tmnewsfeed_block = \Altum\Plugin::is_active('tmnewsfeed-block') && file_exists(\Altum\Plugin::get('tmnewsfeed-block')->path . 'tmnewsfeed_block.php') ? include \Altum\Plugin::get('tmnewsfeed-block')->path . 'tmnewsfeed_block.php' : [];
+$tmpiechart_block = \Altum\Plugin::is_active('tmpiechart-block') && file_exists(\Altum\Plugin::get('tmpiechart-block')->path . 'tmpiechart_block.php') ? include \Altum\Plugin::get('tmpiechart-block')->path . 'tmpiechart_block.php' : [];
+$tmlist_block = \Altum\Plugin::is_active('tmlist-block') && file_exists(\Altum\Plugin::get('tmlist-block')->path . 'tmlist_block.php') ? include \Altum\Plugin::get('tmlist-block')->path . 'tmlist_block.php' : [];
+$tmreview_block = \Altum\Plugin::is_active('tmreview-block') && file_exists(\Altum\Plugin::get('tmreview-block')->path . 'tmreview_block.php') ? include \Altum\Plugin::get('tmreview-block')->path . 'tmreview_block.php' : [];
+$tmticker_block = \Altum\Plugin::is_active('tmticker-block') && file_exists(\Altum\Plugin::get('tmticker-block')->path . 'tmticker_block.php') ? include \Altum\Plugin::get('tmticker-block')->path . 'tmticker_block.php' : [];
+$tmgradienttext_block = \Altum\Plugin::is_active('tmgradienttext-block') && file_exists(\Altum\Plugin::get('tmgradienttext-block')->path . 'tmgradienttext_block.php') ? include \Altum\Plugin::get('tmgradienttext-block')->path . 'tmgradienttext_block.php' : [];
+$tmtextmorph_block = \Altum\Plugin::is_active('tmtextmorph-block') && file_exists(\Altum\Plugin::get('tmtextmorph-block')->path . 'tmtextmorph_block.php') ? include \Altum\Plugin::get('tmtextmorph-block')->path . 'tmtextmorph_block.php' : [];
+$tmtextlogo_block = \Altum\Plugin::is_active('tmtextlogo-block') && file_exists(\Altum\Plugin::get('tmtextlogo-block')->path . 'tmtextlogo_block.php') ? include \Altum\Plugin::get('tmtextlogo-block')->path . 'tmtextlogo_block.php' : [];
+$tmtranslator_block = \Altum\Plugin::is_active('tmtranslator-block') && file_exists(\Altum\Plugin::get('tmtranslator-block')->path . 'tmtranslator_block.php') ? include \Altum\Plugin::get('tmtranslator-block')->path . 'tmtranslator_block.php' : [];
+$tmwawidget_block = \Altum\Plugin::is_active('tmwawidget-block') && file_exists(\Altum\Plugin::get('tmwawidget-block')->path . 'tmwawidget_block.php') ? include \Altum\Plugin::get('tmwawidget-block')->path . 'tmwawidget_block.php' : [];
+$tmcatalog_block = \Altum\Plugin::is_active('tmcatalog-block') && file_exists(\Altum\Plugin::get('tmcatalog-block')->path . 'tmcatalog_block.php') ? include \Altum\Plugin::get('tmcatalog-block')->path . 'tmcatalog_block.php' : [];
+$tmmarket_block = \Altum\Plugin::is_active('tmmarket-block') && file_exists(\Altum\Plugin::get('tmmarket-block')->path . 'tmmarket_block.php') ? include \Altum\Plugin::get('tmmarket-block')->path . 'tmmarket_block.php' : [];
+$tmonetimeoffer_block = \Altum\Plugin::is_active('tmonetimeoffer-block') && file_exists(\Altum\Plugin::get('tmonetimeoffer-block')->path . 'tmonetimeoffer_block.php') ? include \Altum\Plugin::get('tmonetimeoffer-block')->path . 'tmonetimeoffer_block.php' : [];
+$tmrichtext_block = \Altum\Plugin::is_active('tmrichtext-block') && file_exists(\Altum\Plugin::get('tmrichtext-block')->path . 'tmrichtext_block.php') ? include \Altum\Plugin::get('tmrichtext-block')->path . 'tmrichtext_block.php' : [];																																																											
 $default_blocks = [
     'link' => [
         'type' => 'default',
@@ -180,5 +207,33 @@ return array_merge(
     $pro_blocks,
     $ultimate_blocks,
     $payment_blocks,
+    $menu_block,
+    $modal_block,
+    $preloader_block,
+    $slider_block,
+    $cardslider_block,
+    $yamaps_block,
+    $tmprice_block,
+    $tmtimeline_block,
+    $tmfaq_block,
+    $tmscrollindicator_block,
+    $tmscrollcards_block,
+    $tmprogress_block,
+    $tmnotification_block,
+    $tmscrolltimeline_block,
+    $tmnewsfeed_block,
+    $tmpiechart_block,
+    $tmlist_block,
+    $tmreview_block,
+    $tmticker_block,
+    $tmgradienttext_block,
+    $tmtextlogo_block,
+    $tmtextmorph_block,
+    $tmtranslator_block,
+    $tmwawidget_block,
+    $tmcatalog_block,
+    $tmmarket_block,
+    $tmonetimeoffer_block,
+    $tmrichtext_block,	
 );
 

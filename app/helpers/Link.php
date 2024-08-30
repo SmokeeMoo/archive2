@@ -196,20 +196,138 @@ class Link {
                     }
                 }
 
-                /* Get payment processors */
-                if(in_array($link->type, ['donation', 'product', 'service'])) {
-                    $data['payment_processors'] = (new \Altum\Models\PaymentProcessor())->get_payment_processors_by_user_id($user->user_id);
-                }
+            /* Get payment processors */
+            if(in_array($link->type, ['donation', 'product', 'service'])) {
+                $data['payment_processors'] = (new \Altum\Models\PaymentProcessor())->get_payment_processors_by_user_id($user->user_id);
+            }
 
-                $biolink_blocks = require APP_PATH . 'includes/biolink_blocks.php';
+            $biolink_blocks = require APP_PATH . 'includes/biolink_blocks.php';
 
-                if($biolink_blocks[$link->type]['type'] == 'default') {
-                    $view_path = THEME_PATH . 'views/l/biolink_blocks/' . $link->type . '.php';
-                } else {
-                    $view_path = \Altum\Plugin::get($biolink_blocks[$link->type]['type'] . '-blocks')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
-                }
+            if($biolink_blocks[$link->type]['type'] == 'default') {
+                $view_path = THEME_PATH . 'views/l/biolink_blocks/' . $link->type . '.php';
+            } else {
+                $view_path = \Altum\Plugin::get($biolink_blocks[$link->type]['type'] . '-blocks')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            }
 
-                break;
+            break;
+
+            case 'tmrichtext':
+            $view_path = \Altum\Plugin::get('tmrichtext-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;					
+
+            case 'tmonetimeoffer':
+            $view_path = \Altum\Plugin::get('tmonetimeoffer-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmmarket':
+            $view_path = \Altum\Plugin::get('tmmarket-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmcatalog':
+            $view_path = \Altum\Plugin::get('tmcatalog-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmwawidget':
+            $view_path = \Altum\Plugin::get('tmwawidget-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmtextmorph':
+            $view_path = \Altum\Plugin::get('tmtextmorph-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmtextlogo':
+            $view_path = \Altum\Plugin::get('tmtextlogo-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmtranslator':
+            $view_path = \Altum\Plugin::get('tmtranslator-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmprice':
+            $view_path = \Altum\Plugin::get('tmprice-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmgradienttext':
+            $view_path = \Altum\Plugin::get('tmgradienttext-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmticker':
+            $view_path = \Altum\Plugin::get('tmticker-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmreview':
+            $view_path = \Altum\Plugin::get('tmreview-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmlist':
+            $view_path = \Altum\Plugin::get('tmlist-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmpiechart':
+            $view_path = \Altum\Plugin::get('tmpiechart-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmnewsfeed':
+            $view_path = \Altum\Plugin::get('tmnewsfeed-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmscrolltimeline':
+            $view_path = \Altum\Plugin::get('tmscrolltimeline-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmnotification':
+            $view_path = \Altum\Plugin::get('tmnotification-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmscrollindicator':
+            $view_path = \Altum\Plugin::get('tmscrollindicator-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmscrollcards':
+            $view_path = \Altum\Plugin::get('tmscrollcards-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmprogress':
+            $view_path = \Altum\Plugin::get('tmprogress-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmfaq':
+            $view_path = \Altum\Plugin::get('tmfaq-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'tmtimeline':
+            $view_path = \Altum\Plugin::get('tmtimeline-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'menu':
+            $view_path = \Altum\Plugin::get('menu-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'yamaps':
+            $view_path = \Altum\Plugin::get('yamaps-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'modal':
+            $view_path = \Altum\Plugin::get('modal-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'preloader':
+            $view_path = \Altum\Plugin::get('preloader-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
+            case 'slider':
+            $view_path = \Altum\Plugin::get('slider-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            /* UTM Parameters */
+            $link->utm_query = null;
+            if($user->plan_settings->utm && $link->utm->medium && $link->utm->source) {
+                $link->utm_query = '?utm_medium=' . $link->utm->medium . '&utm_source=' . $link->utm->source . '&utm_campaign=' . $link->settings->name;
+            }
+            break;
+
+            case 'cardslider':
+            $view_path = \Altum\Plugin::get('cardslider-block')->path . 'views/l/biolink_blocks/' . $link->type . '.php';
+            break;
+
 
             case 'heading':
             case 'paragraph':
@@ -549,6 +667,8 @@ class Link {
 
                 break;
         }
+
+
 
         if(!isset($view_path)) return null;
 

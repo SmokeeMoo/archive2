@@ -871,6 +871,494 @@
         <button type="button" data-remove="vcard_phone_numbers" class="btn btn-sm btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
     </div>
 </template>
+
+<template id="template_tmreview_item">
+    <div class="card-body" style="padding: 0.35rem;display:block">
+    	    </div>
+    <div class="mb-4">
+         <h1 class="btn btn-block btn-gray-300" id="image"> </h1>
+        <div class="form-group d-none">
+				<div class="custom-control custom-switch mb-3">
+					<input id="" name="enable" type="checkbox" class="custom-control-input" checked="checked">
+					<label class="custom-control-label" for="">Enable</label>
+				</div>
+			</div>	
+			
+			
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmreview_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmreview_modal.title.placeholder') ?>"/>
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmreview_modal.subcontent') ?></label>
+            <input id="" name="item_subcontent[]" class="form-control" required="required" placeholder="<?= l('create_biolink_tmreview_modal.subcontent.placeholder') ?>"/>
+            </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmreview_modal.content') ?></label>
+            <textarea id="" type="text" name="item_content[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmreview_modal.content.placeholder') ?>"></textarea>
+        </div>
+
+    
+ <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-image fa-sm mr-1"></i> <?= l('create_biolink_image_modal.image') ?></label>
+            <input id="" type="file" name="image" accept=".gif, .png, .jpg, .jpeg" class="form-control-file" />
+        </div>	
+
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_menu_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_menu_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_menu_modal.title.placeholder') ?>" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-globe fa-sm text-muted mr-1"></i> <?= l('create_biolink_menu_modal.content') ?></label>
+            <input id="" name="item_content[]" class="form-control" required="required" maxlength="2048" placeholder="<?= l('create_biolink_menu_modal.content.placeholder') ?>" />
+        </div>
+        
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmprice_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmprice_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmprice_modal.title.placeholder') ?>" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-globe fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmprice_modal.content') ?></label>
+            <input id="" name="item_content[]" class="form-control" maxlength="2048" placeholder="<?= l('create_biolink_tmprice_modal.content.placeholder') ?>" />
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-globe fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmprice_modal.cost') ?></label>
+            <input id="" name="item_cost[]" class="form-control" required="required" maxlength="2048" placeholder="<?= l('create_biolink_tmprice_modal.placeholder') ?>" />
+        </div>
+        
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmtimeline_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmtimeline_modal.title') ?></label>
+            <textarea id="" type="text" name="item_title[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmtimeline_modal.title.placeholder') ?>"></textarea>
+        </div>
+
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmfaq_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmfaq_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmfaq_modal.content') ?></label>
+            <textarea id="" name="item_content[]" class="form-control" required="required"></textarea>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmlist_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmlist_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmmarket_item">
+    <div class="mb-4">
+        
+                	<div class="form-group d-none">
+				<div class="custom-control custom-switch mb-3">
+					<input id="" name="enable" type="checkbox" class="custom-control-input" checked="checked">
+					<label class="custom-control-label" for="">Enable</label>
+				</div>
+			</div>
+        
+            <div class="form-group">
+                <label for=""><i class="fas fa-fw fa-image fa-sm text-muted mr-1"></i> <?= l('create_biolink_image_modal.image') ?></label>
+                <div class="d-none">
+                    <div class="row">
+                        <div class="m-1 col-6 col-xl-3">
+                            <img src="" class="img-fluid rounded d-none" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+                <input id="" type="file" name="item_image_" accept=".gif, .png, .jpg, .jpeg" class="form-control-file" required="required" />
+            </div>
+            
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmmarket_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" placeholder="<?= l('create_biolink_tmmarket_modal.title_placeholder') ?>" required="required" />
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-paragraph fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmmarket_modal.description') ?></label>
+            <input id="" type="text" name="item_description[]" placeholder="<?= l('create_biolink_tmmarket_modal.description_placeholder') ?>" class="form-control" value="" required="required" />
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-credit-card fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmmarket_modal.cost') ?></label>
+            <input id="" type="text" name="item_cost[]" placeholder="<?= l('create_biolink_tmmarket_modal.cost_placeholder') ?>" class="form-control" value="" required="required" />
+        </div>
+        
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmtranslator_item">
+    <div class="mb-4">
+        <!--<div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmtranslator_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>-->
+        
+ <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-language fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmtranslator_modal.lang') ?></label>
+            <select id="" name="item_lang[]" class="form-control" required="required">
+                <option value="en"><?= l('create_biolink_tmtranslator_modal.en') ?></option>
+             <option value="es"><?= l('create_biolink_tmtranslator_modal.es') ?></option>
+            <option value="zh"><?= l('create_biolink_tmtranslator_modal.zh') ?></option>
+            <option value="hi"><?= l('create_biolink_tmtranslator_modal.hi') ?></option>
+            <option value="ar"><?= l('create_biolink_tmtranslator_modal.ar') ?></option>
+            <option value="bn"><?= l('create_biolink_tmtranslator_modal.bn') ?></option>
+            <option value="pt"><?= l('create_biolink_tmtranslator_modal.pt') ?></option>
+            <option value="ja"><?= l('create_biolink_tmtranslator_modal.ja') ?></option>
+            <option value="ms"><?= l('create_biolink_tmtranslator_modal.ms') ?></option>
+            <option value="tr"><?= l('create_biolink_tmtranslator_modal.tr') ?></option>
+            <option value="ko"><?= l('create_biolink_tmtranslator_modal.ko') ?></option>
+            <option value="fr"><?= l('create_biolink_tmtranslator_modal.fr') ?></option>
+            <option value="de"><?= l('create_biolink_tmtranslator_modal.de') ?></option>
+            <option value="it"><?= l('create_biolink_tmtranslator_modal.it') ?></option>
+            <option value="uk"><?= l('create_biolink_tmtranslator_modal.uk') ?></option>
+            <option value="ru"><?= l('create_biolink_tmtranslator_modal.ru') ?></option>
+            </select>
+        </div>
+
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmtextmorph_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmtextmorph_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmnotification_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnotification_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnotification_modal.text') ?></label>
+            <textarea id="" name="item_content[]" class="form-control" required="required"></textarea>
+        </div>
+        
+                <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-expand fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnotification_modal.icon') ?></label>
+            <select id="" name="item_icon[]" class="form-control">
+                <option value="error"><?= l('create_biolink_tmnotification_modal.error') ?></option>
+             <option value="warning"><?= l('create_biolink_tmnotification_modal.warning') ?></option>
+            <option value="success"><?= l('create_biolink_tmnotification_modal.success') ?></option>
+            <option value="message"><?= l('create_biolink_tmnotification_modal.message') ?></option>
+            <option value="clock"><?= l('create_biolink_tmnotification_modal.clock') ?></option>
+            <option value="up"><?= l('create_biolink_tmnotification_modal.up') ?></option>
+            </select>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmscrolltimeline_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrolltimeline_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrolltimeline_modal.text') ?></label>
+            <textarea id="" name="item_content[]" class="form-control" required="required"></textarea>
+        </div>
+        
+         <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-clock fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrolltimeline_modal.date') ?></label>
+            <input id="" type="text" name="item_date[]" class="form-control" value="" required="required" />
+        </div>
+        
+                <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-expand fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrolltimeline_modal.icon') ?></label>
+            <select id="" name="item_icon[]" class="form-control">
+                <option value="warning"><?= l('create_biolink_tmscrolltimeline_modal.warning') ?></option>
+             <option value="danger"><?= l('create_biolink_tmscrolltimeline_modal.danger') ?></option>
+            <option value="primary"><?= l('create_biolink_tmscrolltimeline_modal.primary') ?></option>
+            <option value="success"><?= l('create_biolink_tmscrolltimeline_modal.success') ?></option>
+            </select>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmnewsfeed_item"> 
+   <div class="card-body" style="padding: 0.35rem;display:block">
+    	    </div>
+    <div class="mb-4">
+         <h1 class="btn btn-block btn-gray-300" id="image"> </h1>
+        <div class="form-group d-none">
+				<div class="custom-control custom-switch mb-3">
+					<input id="" name="enable" type="checkbox" class="custom-control-input" checked="checked">
+					<label class="custom-control-label" for="">Enable</label>
+				</div>
+			</div>	
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnewsfeed_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmnewsfeed_modal.title.placeholder') ?>" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnewsfeed_modal.text') ?></label>
+            <input id="" name="item_content[]" class="form-control" placeholder="<?= l('create_biolink_tmnewsfeed_modal.text.placeholder') ?>" />
+        </div>
+        
+         <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-clock fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnewsfeed_modal.date') ?></label>
+            <input id="" type="text" name="item_date[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmnewsfeed_modal.date.placeholder') ?>" />
+        </div>
+        
+         <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-clock fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnewsfeed_modal.month') ?></label>
+            <input id="" type="text" name="item_month[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmnewsfeed_modal.month.placeholder') ?>" />
+        </div>
+        
+             <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-folder-open fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmnewsfeed_modal.topic') ?></label>
+            <input id="" type="text" name="item_topic[]" class="form-control" value="" required="required" placeholder="<?= l('create_biolink_tmnewsfeed_modal.topic.placeholder') ?>"/>
+        </div>
+        
+             
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmscrollcards_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrollcards_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmscrollcards_modal.content') ?></label>
+            <textarea id="" name="item_content[]" class="form-control" required="required"></textarea>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmprogress_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmprogress_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmprogress_modal.content') ?></label>
+            <input id="" name="item_content[]" class="form-control" required="required" />
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmticker_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmticker_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmticker_modal.block_content') ?></label>
+            <input id="" type="text" name="item_content[]" class="form-control" value="" placeholder="<?= l('create_biolink_tmticker_modal.block_content_placeholder') ?>"/>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_tmpiechart_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmpiechart_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmpiechart_modal.content') ?></label>
+            <input id="" name="item_content[]" class="form-control" required="required" />
+        </div>
+        
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-expand fa-sm text-muted mr-1"></i> <?= l('create_biolink_tmpiechart_modal.color') ?></label>
+            <select id="" name="item_color[]" class="form-control" required="required">
+                <option value="white"><?= l('create_biolink_tmpiechart_modal.white') ?></option>
+             <option value="#c7ccd1"><?= l('create_biolink_tmpiechart_modal.silver') ?></option>
+            <option value="#9db1cc"><?= l('create_biolink_tmpiechart_modal.gray') ?></option>
+            <option value="#282828"><?= l('create_biolink_tmpiechart_modal.black') ?></option>
+            <option value="#dd6864"><?= l('create_biolink_tmpiechart_modal.red') ?></option>
+            <option value="#8b0000"><?= l('create_biolink_tmpiechart_modal.maroon') ?></option>
+            <option value="#fab657"><?= l('create_biolink_tmpiechart_modal.yellow') ?></option>
+            <option value="#00856f"><?= l('create_biolink_tmpiechart_modal.olive') ?></option>
+            <option value="#1e5945"><?= l('create_biolink_tmpiechart_modal.lime') ?></option>
+            <option value="#7fc77f"><?= l('create_biolink_tmpiechart_modal.green') ?></option>
+            <option value="#1ca9c9"><?= l('create_biolink_tmpiechart_modal.aqua') ?></option>
+            <option value="#105f70"><?= l('create_biolink_tmpiechart_modal.teal') ?></option>
+            <option value="#5093ce"><?= l('create_biolink_tmpiechart_modal.blue') ?></option>
+            <option value="#003841"><?= l('create_biolink_tmpiechart_modal.navy') ?></option>
+            <option value="#eaaede"><?= l('create_biolink_tmpiechart_modal.fuchsia') ?></option>
+            <option value="#423c63"><?= l('create_biolink_tmpiechart_modal.purple') ?></option>
+            </select>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>		   
+<template id="template_faq_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_faq_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_faq_modal.content') ?></label>
+            <textarea id="" name="item_content[]" class="form-control" required="required"></textarea>
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_timeline_item">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-signature fa-sm text-muted mr-1"></i> <?= l('create_biolink_timeline_modal.title') ?></label>
+            <input id="" type="text" name="item_title[]" class="form-control" value="" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-pen fa-sm text-muted mr-1"></i> <?= l('create_biolink_timeline_modal.description') ?></label>
+            <textarea id="" name="item_description[]" class="form-control" required="required"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for=""><i class="fas fa-fw fa-calendar fa-sm text-muted mr-1"></i> <?= l('create_biolink_timeline_modal.date') ?></label>
+            <input id="" type="text" name="item_date[]" class="form-control" value="" required="required" />
+        </div>
+
+        <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<?php if(\Altum\Plugin::is_active('ultimate-blocks')): ?>
+    <template id="template_image_slider_item">
+        <div class="mb-4">
+            <div class="form-group">
+                <label for=""><i class="fas fa-fw fa-image fa-sm text-muted mr-1"></i> <?= l('create_biolink_image_modal.image') ?></label>
+                <div class="d-none">
+                    <div class="row">
+                        <div class="my-2 col-6 col-xl-4">
+                            <img src="" class="img-fluid rounded d-none" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+                <input id="" type="file" name="item_image_" accept="<?= \Altum\Uploads::array_to_list_format($data->biolink_blocks['image_slider']['whitelisted_image_extensions']) ?>" class="form-control-file altum-file-input" required="required" />
+                <small class="form-text text-muted"><?= sprintf(l('global.accessibility.whitelisted_file_extensions'), \Altum\Uploads::array_to_list_format($data->biolink_blocks['image_slider']['whitelisted_image_extensions'])) . ' ' . sprintf(l('global.accessibility.file_size_limit'), settings()->links->image_size_limit) ?></small>
+            </div>
+
+            <div class="form-group">
+                <label for=""><i class="fas fa-fw fa-comment-dots fa-sm text-muted mr-1"></i> <?= l('create_biolink_link_modal.input.image_alt') ?></label>
+                <input id="" type="text" class="form-control" name="item_image_alt[]" maxlength="100" />
+                <small class="form-text text-muted"><?= l('create_biolink_link_modal.input.image_alt_help') ?></small>
+            </div>
+
+            <div class="form-group">
+                <label for=""><i class="fas fa-fw fa-link fa-sm text-muted mr-1"></i> <?= l('create_biolink_link_modal.input.location_url') ?></label>
+                <input id="" type="text" class="form-control" name="item_location_url[]" maxlength="2048" />
+            </div>
+
+            <button type="button" data-remove="item" class="btn btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+        </div>
+    </template>
+<?php endif ?>
+
+<template id="template_vcard_social">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><?= l('create_biolink_vcard_modal.vcard_social_label') ?></label>
+            <input id="" type="text" name="vcard_social_label[]" class="form-control" maxlength="<?= $data->biolink_blocks['vcard']['fields']['social_label']['max_length'] ?>" required="required" />
+        </div>
+
+        <div class="form-group">
+            <label for=""><?= l('create_biolink_vcard_modal.vcard_social_value') ?></label>
+            <input id="" type="url" name="vcard_social_value[]" class="form-control" maxlength="<?= $data->biolink_blocks['vcard']['fields']['social_value']['max_length'] ?>" required="required" />
+        </div>
+
+        <button type="button" data-remove="vcard_social" class="btn btn-sm btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
+
+<template id="template_vcard_phone_numbers">
+    <div class="mb-4">
+        <div class="form-group">
+            <label for=""><?= l('create_biolink_vcard_modal.vcard_phone_number') ?></label>
+            <input id="" type="text" name="vcard_phone_numbers[]" class="form-control" maxlength="<?= $data->biolink_blocks['vcard']['fields']['phone_number']['max_length'] ?>" required="required" />
+        </div>
+
+        <button type="button" data-remove="vcard_phone_numbers" class="btn btn-sm btn-block btn-outline-danger"><i class="fas fa-fw fa-times"></i> <?= l('global.delete') ?></button>
+    </div>
+</template>
 <?php $html = ob_get_clean() ?>
 
 
@@ -1966,6 +2454,843 @@
 
         clone.querySelector(`input[name="vcard_phone_number_label[]"`).setAttribute('name', `vcard_phone_number_label[${count}]`);
         clone.querySelector(`input[name="vcard_phone_number_value[]"`).setAttribute('name', `vcard_phone_number_value[${count}]`);
+
+        document.querySelector(`[id="vcard_phone_numbers_${biolink_block_id}"]`).appendChild(clone);
+
+        vcard_phone_number_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="vcard_phone_numbers"]').forEach(element => {
+        element.addEventListener('click', vcard_phone_number_add);
+    })
+
+    /* remove */
+    let vcard_phone_number_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let vcard_phone_number_remove_initiator = () => {
+        document.querySelectorAll('[id^="vcard_phone_numbers_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', vcard_phone_number_remove);
+            element.addEventListener('click', vcard_phone_number_remove)
+        })
+    };
+
+    vcard_phone_number_remove_initiator();
+</script>
+
+<script>
+    /* TMReview Script */
+    'use strict';
+    /* add new */
+    let tmreview_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmreview_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmreview_items_${biolink_block_id}"] .mb-4`).length;
+        
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_subcontent[]"`).setAttribute('name', `item_subcontent[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+        clone.querySelector(`input[name="image"`).setAttribute('name', `image${count}`);
+        clone.querySelector(`input[name="enable"`).setAttribute('name', `enable${count}`);
+        clone.querySelector(`h1`).innerHTML = ('name', `Review ${count+1}`);
+
+        document.querySelector(`[id="tmreview_items_${biolink_block_id}"]`).appendChild(clone);
+        
+        tmreview_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmreview_item"]').forEach(element => {
+        element.addEventListener('click', tmreview_item_add);
+    })
+
+    /* remove */
+     let tmreview_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+        
+   /* document.querySelector(`.card-body[style="padding: 0.35rem;display:block"]`).setAttribute('style', `display:none`);*/
+     
+    };
+
+    let tmreview_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmreview_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmreview_item_remove);
+            element.addEventListener('click', tmreview_item_remove)
+        })
+        
+    };
+
+    tmreview_item_remove_initiator();
+</script>
+
+<script>
+    /* Menu Script */
+    'use strict';
+
+    /* add new */
+    let menu_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_menu_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="menu_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="menu_items_${biolink_block_id}"]`).appendChild(clone);
+
+        menu_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="menu_item"]').forEach(element => {
+        element.addEventListener('click', menu_item_add);
+    })
+
+    /* remove */
+    let menu_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let menu_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="menu_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', menu_item_remove);
+            element.addEventListener('click', menu_item_remove)
+        })
+    };
+
+    menu_item_remove_initiator();
+</script>
+
+<script>
+    /* TMFAQ Script */
+    'use strict';
+
+    /* add new */
+    let tmfaq_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmfaq_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmfaq_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="tmfaq_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmfaq_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmfaq_item"]').forEach(element => {
+        element.addEventListener('click', tmfaq_item_add);
+    })
+
+    /* remove */
+    let tmfaq_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmfaq_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmfaq_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmfaq_item_remove);
+            element.addEventListener('click', tmfaq_item_remove)
+        })
+    };
+
+    tmfaq_item_remove_initiator();
+</script>
+
+<script>
+    /* TMList Script */
+    'use strict';
+
+    /* add new */
+    let tmlist_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmlist_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmlist_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+
+        document.querySelector(`[id="tmlist_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmlist_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmlist_item"]').forEach(element => {
+        element.addEventListener('click', tmlist_item_add);
+    })
+
+    /* remove */
+    let tmlist_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmlist_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmlist_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmlist_item_remove);
+            element.addEventListener('click', tmlist_item_remove)
+        })
+    };
+
+    tmlist_item_remove_initiator();
+</script>
+
+<script>
+    /* tmmarket Script */
+    'use strict';
+
+    /* add new */
+    let tmmarket_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmmarket_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmmarket_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="enable"`).setAttribute('name', `enable${count}`);
+        clone.querySelector(`input[name="item_image_"`).setAttribute('name', `item_image_${count}`);
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_description[]"`).setAttribute('name', `item_description[${count}]`);
+        clone.querySelector(`input[name="item_cost[]"`).setAttribute('name', `item_cost[${count}]`);
+
+        document.querySelector(`[id="tmmarket_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmmarket_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmmarket_item"]').forEach(element => {
+        element.addEventListener('click', tmmarket_item_add);
+    })
+
+    /* remove */
+    let tmmarket_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmmarket_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmmarket_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmmarket_item_remove);
+            element.addEventListener('click', tmmarket_item_remove)
+        })
+    };
+
+    tmmarket_item_remove_initiator();
+</script>
+
+<script>
+    /* TMTranslator Script */
+    'use strict';
+
+    /* add new */
+    let tmtranslator_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmtranslator_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmtranslator_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 16) return;
+
+        /*clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);*/
+        clone.querySelector(`select[name="item_lang[]"`).setAttribute('name', `item_lang[${count}]`);
+
+        document.querySelector(`[id="tmtranslator_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmtranslator_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmtranslator_item"]').forEach(element => {
+        element.addEventListener('click', tmtranslator_item_add);
+    })
+
+    /* remove */
+    let tmtranslator_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmtranslator_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmtranslator_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmtranslator_item_remove);
+            element.addEventListener('click', tmtranslator_item_remove)
+        })
+    };
+
+    tmtranslator_item_remove_initiator();
+</script>
+
+<script>
+    /* TMTextMorph Script */
+    'use strict';
+
+    /* add new */
+    let tmtextmorph_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmtextmorph_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmtextmorph_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+
+        document.querySelector(`[id="tmtextmorph_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmtextmorph_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmtextmorph_item"]').forEach(element => {
+        element.addEventListener('click', tmtextmorph_item_add);
+    })
+
+    /* remove */
+    let tmtextmorph_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmtextmorph_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmtextmorph_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmtextmorph_item_remove);
+            element.addEventListener('click', tmtextmorph_item_remove)
+        })
+    };
+
+    tmtextmorph_item_remove_initiator();
+</script>
+
+<script>
+    /* TMNotification Script */
+    'use strict';
+
+    /* add new */
+    let tmnotification_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmnotification_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmnotification_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+        clone.querySelector(`select[name="item_icon[]"`).setAttribute('name', `item_icon[${count}]`);
+
+        document.querySelector(`[id="tmnotification_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmnotification_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmnotification_item"]').forEach(element => {
+        element.addEventListener('click', tmnotification_item_add);
+    })
+
+    /* remove */
+    let tmnotification_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmnotification_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmnotification_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmnotification_item_remove);
+            element.addEventListener('click', tmnotification_item_remove)
+        })
+    };
+
+    tmnotification_item_remove_initiator();
+</script>
+
+<script>
+    /* TMScrolltimeline Script */
+    'use strict';
+
+    /* add new */
+    let tmscrolltimeline_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmscrolltimeline_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmscrolltimeline_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+        clone.querySelector(`input[name="item_date[]"`).setAttribute('name', `item_date[${count}]`);
+        clone.querySelector(`select[name="item_icon[]"`).setAttribute('name', `item_icon[${count}]`);
+
+        document.querySelector(`[id="tmscrolltimeline_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmscrolltimeline_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmscrolltimeline_item"]').forEach(element => {
+        element.addEventListener('click', tmscrolltimeline_item_add);
+    })
+
+    /* remove */
+    let tmscrolltimeline_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmscrolltimeline_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmscrolltimeline_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmscrolltimeline_item_remove);
+            element.addEventListener('click', tmscrolltimeline_item_remove)
+        })
+    };
+
+    tmscrolltimeline_item_remove_initiator();
+</script>
+
+<script>
+    /* TMNewsfeed Script */
+    'use strict';
+
+    /* add new */
+    let tmnewsfeed_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmnewsfeed_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmnewsfeed_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="enable"`).setAttribute('name', `enable${count}`);
+        clone.querySelector(`h1`).innerHTML = ('name', `News ${count+1}`);
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+        clone.querySelector(`input[name="item_date[]"`).setAttribute('name', `item_date[${count}]`);
+        clone.querySelector(`input[name="item_month[]"`).setAttribute('name', `item_month[${count}]`);
+        clone.querySelector(`input[name="item_topic[]"`).setAttribute('name', `item_topic[${count}]`);        
+
+        document.querySelector(`[id="tmnewsfeed_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmnewsfeed_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmnewsfeed_item"]').forEach(element => {
+        element.addEventListener('click', tmnewsfeed_item_add);
+    })
+
+    /* remove */
+    let tmnewsfeed_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmnewsfeed_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmnewsfeed_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmnewsfeed_item_remove);
+            element.addEventListener('click', tmnewsfeed_item_remove)
+        })
+    };
+
+    tmnewsfeed_item_remove_initiator();
+</script>
+
+<script>
+    /* TMScrollcards Script */
+    'use strict';
+
+    /* add new */
+    let tmscrollcards_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmscrollcards_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmscrollcards_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="tmscrollcards_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmscrollcards_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmscrollcards_item"]').forEach(element => {
+        element.addEventListener('click', tmscrollcards_item_add);
+    })
+
+    /* remove */
+    let tmscrollcards_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmscrollcards_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmscrollcards_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmscrollcards_item_remove);
+            element.addEventListener('click', tmscrollcards_item_remove)
+        })
+    };
+
+    tmscrollcards_item_remove_initiator();
+</script>
+
+<script>
+    /* TMProgress Script */
+    'use strict';
+
+    /* add new */
+    let tmprogress_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmprogress_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmprogress_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="tmprogress_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmprogress_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmprogress_item"]').forEach(element => {
+        element.addEventListener('click', tmprogress_item_add);
+    })
+
+    /* remove */
+    let tmprogress_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmprogress_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmprogress_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmprogress_item_remove);
+            element.addEventListener('click', tmprogress_item_remove)
+        })
+    };
+
+    tmprogress_item_remove_initiator();
+</script>
+
+<script>
+    /* TMTicker Script */
+    'use strict';
+
+    /* add new */
+    let tmticker_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmticker_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmticker_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="tmticker_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmticker_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmticker_item"]').forEach(element => {
+        element.addEventListener('click', tmticker_item_add);
+    })
+
+    /* remove */
+    let tmticker_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmticker_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmticker_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmticker_item_remove);
+            element.addEventListener('click', tmticker_item_remove)
+        })
+    };
+
+    tmticker_item_remove_initiator();
+</script>
+
+<script>
+    /* TMPiechart Script */
+    'use strict';
+
+    /* add new */
+    let tmpiechart_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmpiechart_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmpiechart_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+        clone.querySelector(`select[name="item_color[]"`).setAttribute('name', `item_color[${count}]`);
+
+        document.querySelector(`[id="tmpiechart_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmpiechart_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmpiechart_item"]').forEach(element => {
+        element.addEventListener('click', tmpiechart_item_add);
+    })
+
+    /* remove */
+    let tmpiechart_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmpiechart_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmpiechart_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmpiechart_item_remove);
+            element.addEventListener('click', tmpiechart_item_remove)
+        })
+    };
+
+    tmpiechart_item_remove_initiator();
+</script>
+
+<script>
+    /* TMPrice Script */
+    'use strict';
+
+    /* add new */
+    let tmprice_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmprice_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmprice_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`input[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="tmprice_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmprice_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmprice_item"]').forEach(element => {
+        element.addEventListener('click', tmprice_item_add);
+    })
+
+    /* remove */
+    let tmprice_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmprice_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmprice_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmprice_item_remove);
+            element.addEventListener('click', tmprice_item_remove)
+        })
+    };
+
+    tmprice_item_remove_initiator();
+</script>
+
+<script>
+    /* TMTimeline Script */
+    'use strict';
+
+    /* add new */
+    let tmtimeline_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_tmtimeline_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="tmtimeline_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`textarea[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+
+
+        document.querySelector(`[id="tmtimeline_items_${biolink_block_id}"]`).appendChild(clone);
+
+        tmtimeline_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="tmtimeline_item"]').forEach(element => {
+        element.addEventListener('click', tmtimeline_item_add);
+    })
+
+    /* remove */
+    let tmtimeline_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let tmtimeline_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="tmtimeline_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', tmtimeline_item_remove);
+            element.addEventListener('click', tmtimeline_item_remove)
+        })
+    };
+
+    tmtimeline_item_remove_initiator();
+</script>
+<script>		
+    /* FAQ Script */
+    'use strict';
+
+    /* add new */
+    let faq_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_faq_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="faq_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_content[]"`).setAttribute('name', `item_content[${count}]`);
+
+        document.querySelector(`[id="faq_items_${biolink_block_id}"]`).appendChild(clone);
+
+        faq_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="faq_item"]').forEach(element => {
+        element.addEventListener('click', faq_item_add);
+    })
+
+    /* remove */
+    let faq_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let faq_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="faq_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', faq_item_remove);
+            element.addEventListener('click', faq_item_remove)
+        })
+    };
+
+    faq_item_remove_initiator();
+</script>
+
+<script>
+    /* Timeline Script */
+    'use strict';
+
+    /* add new */
+    let timeline_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_timeline_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="timeline_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 100) return;
+
+        clone.querySelector(`input[name="item_title[]"`).setAttribute('name', `item_title[${count}]`);
+        clone.querySelector(`textarea[name="item_description[]"`).setAttribute('name', `item_description[${count}]`);
+        clone.querySelector(`input[name="item_date[]"`).setAttribute('name', `item_date[${count}]`);
+
+        document.querySelector(`[id="timeline_items_${biolink_block_id}"]`).appendChild(clone);
+
+        timeline_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="timeline_item"]').forEach(element => {
+        element.addEventListener('click', timeline_item_add);
+    })
+
+    /* remove */
+    let timeline_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let timeline_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="timeline_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', timeline_item_remove);
+            element.addEventListener('click', timeline_item_remove)
+        })
+    };
+
+    timeline_item_remove_initiator();
+</script>
+
+<script>
+    /* Image slider Script */
+    'use strict';
+
+    /* add new */
+    let image_slider_item_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_image_slider_item`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="image_slider_items_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 25) return;
+
+        clone.querySelector(`input[name="item_image_"`).setAttribute('name', `item_image_${count}`);
+        clone.querySelector(`input[name="item_image_alt[]"`).setAttribute('name', `item_image_alt[${count}]`);
+        clone.querySelector(`input[name="item_location_url[]"`).setAttribute('name', `item_location_url[${count}]`);
+
+        document.querySelector(`[id="image_slider_items_${biolink_block_id}"]`).appendChild(clone);
+
+        image_slider_item_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="image_slider_item"]').forEach(element => {
+        element.addEventListener('click', image_slider_item_add);
+    })
+
+    /* remove */
+    let image_slider_item_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let image_slider_item_remove_initiator = () => {
+        document.querySelectorAll('[id^="image_slider_items_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', image_slider_item_remove);
+            element.addEventListener('click', image_slider_item_remove)
+        })
+    };
+
+    image_slider_item_remove_initiator();
+</script>
+
+<script>
+    /* Vcard Social Script */
+    'use strict';
+
+    /* add new */
+    let vcard_social_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_vcard_social`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="vcard_socials_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 20) return;
+
+        clone.querySelector(`input[name="vcard_social_label[]"`).setAttribute('name', `vcard_social_label[${count}]`);
+        clone.querySelector(`input[name="vcard_social_value[]"`).setAttribute('name', `vcard_social_value[${count}]`);
+
+        document.querySelector(`[id="vcard_socials_${biolink_block_id}"]`).appendChild(clone);
+
+        vcard_social_remove_initiator();
+    };
+
+    document.querySelectorAll('[data-add="vcard_social"]').forEach(element => {
+        element.addEventListener('click', vcard_social_add);
+    })
+
+    /* remove */
+    let vcard_social_remove = event => {
+        event.currentTarget.closest('.mb-4').remove();
+    };
+
+    let vcard_social_remove_initiator = () => {
+        document.querySelectorAll('[id^="vcard_socials_"] [data-remove]').forEach(element => {
+            element.removeEventListener('click', vcard_social_remove);
+            element.addEventListener('click', vcard_social_remove)
+        })
+    };
+
+    vcard_social_remove_initiator();
+</script>
+
+<script>
+    /* Vcard Phone Numbers */
+    'use strict';
+
+    /* add new */
+    let vcard_phone_number_add = event => {
+        let biolink_block_id = event.currentTarget.getAttribute('data-biolink-block-id');
+        let clone = document.querySelector(`#template_vcard_phone_numbers`).content.cloneNode(true);
+        let count = document.querySelectorAll(`[id="vcard_phone_numbers_${biolink_block_id}"] .mb-4`).length;
+
+        if(count >= 20) return;
+
+        clone.querySelector(`input[name="vcard_phone_numbers[]"`).setAttribute('name', `vcard_phone_numbers[${count}]`);
 
         document.querySelector(`[id="vcard_phone_numbers_${biolink_block_id}"]`).appendChild(clone);
 

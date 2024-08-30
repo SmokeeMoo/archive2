@@ -41,12 +41,15 @@ class LinkAjax extends Controller {
 
                 /* Duplicate */
                 case 'duplicate': $this->duplicate(); break;
+                
+                /* Theme_Duplicate */
+                case 'duplicate_theme': $this->duplicate_theme(); break;
 
             }
 
         }
 
-        die();
+        die($_POST['request_type']);
     }
 
     private function is_enabled_toggle() {
@@ -66,8 +69,8 @@ class LinkAjax extends Controller {
             db()->where('link_id', $link->link_id)->update('links', ['is_enabled' => $new_is_enabled]);
 
             /* Clear the cache */
-            cache()->deleteItem('link?link_id=' . $_POST['link_id']);
-            cache()->deleteItemsByTag('link_id=' . $_POST['link_id']);
+            \Altum\Cache::$adapter->deleteItem('link?link_id=' . $_POST['link_id']);
+            \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $_POST['link_id']);
 
             Response::json(l('global.success_message.create2'), 'success');
         }
@@ -97,7 +100,7 @@ class LinkAjax extends Controller {
 
         $_POST['location_url'] = get_url($_POST['location_url']);
         $_POST['url'] = !empty($_POST['url']) && $this->user->plan_settings->custom_url ? get_slug($_POST['url'], '-', false) : null;
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
         $type = 'link';
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
@@ -144,17 +147,9 @@ class LinkAjax extends Controller {
             'password' => null,
             'sensitive_content' => false,
             'targeting_type' => null,
-            'app_linking_is_enabled' => false,
-            'app_linking' => [],
             'cloaking_is_enabled' => false,
             'cloaking_title' => null,
             'cloaking_favicon' => null,
-            'forward_query_parameters_is_enabled' => false,
-            'utm' => [
-                'source' => null,
-                'medium' => null,
-                'campaign' => null,
-            ]
         ]);
 
         /* Insert to database */
@@ -169,9 +164,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -182,12 +176,7 @@ class LinkAjax extends Controller {
         }
 
         $_POST['url'] = !empty($_POST['url']) && $this->user->plan_settings->custom_url ? get_slug($_POST['url'], '-', false) : null;
-        $_POST['biolink_template_id'] = isset($_POST['biolink_template_id']) && in_array($_POST['biolink_template_id'], $this->user->plan_settings->biolinks_templates ?? []) ? (int) $_POST['biolink_template_id'] : null;
-
-        /* Check for a default template id */
-        if(!$_POST['biolink_template_id'] && settings()->links->default_biolink_template_id) {
-            $_POST['biolink_template_id'] = settings()->links->default_biolink_template_id;
-        }
+        $_POST['biolink_template_id'] = $_POST['biolink_template_id'] ? (int) $_POST['biolink_template_id'] : null;
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -212,14 +201,12 @@ class LinkAjax extends Controller {
         /* Start the creation process */
         $url = $_POST['url'] ? $_POST['url'] : mb_strtolower(string_generate(settings()->links->random_url_length ?? 7));
         $type = 'biolink';
-        $settings = [
+        $settings = json_encode([
             'verified_location' => 'top',
             'favicon' => null,
             'background_type' => 'preset',
             'background' => 'one',
             'background_attachment' => 'scroll',
-            'background_blur' => 0,
-            'background_brightness' => 100,
             'text_color' => '#ffffff',
             'display_branding' => true,
             'branding' => [
@@ -239,15 +226,12 @@ class LinkAjax extends Controller {
             ],
             'font' => 'default',
             'font_size' => 16,
-            'width' => 8,
-            'block_spacing' => 2,
-            'hover_animation' => 'smooth',
             'password' => null,
             'sensitive_content' => false,
             'leap_link' => null,
             'custom_css' => null,
             'custom_js' => null,
-        ];
+        ]);
 
         /* Generate random url if not specified */
         while(db()->where('url', $url)->where('domain_id', $domain_id)->getValue('links', 'link_id')) {
@@ -268,15 +252,15 @@ class LinkAjax extends Controller {
 
                 if($biolink) {
                     /* Get all the biolink blocks as well */
-                    $biolink->settings = json_decode($biolink->settings ?? '');
-                    $biolink->settings->seo->image = \Altum\Uploads::copy_uploaded_file($biolink->settings->seo->image, 'block_images/', 'block_images/', 'json_error');
+                    $biolink->settings = json_decode($biolink->settings);
+                    $biolink->settings->seo_image = \Altum\Uploads::copy_uploaded_file($biolink->settings->seo_image, 'block_images/', 'block_images/', 'json_error');
                     $biolink->settings->favicon = \Altum\Uploads::copy_uploaded_file($biolink->settings->favicon, 'favicons/', 'favicons/', 'json_error');
                     if($biolink->settings->background_type == 'image') $biolink->settings->background = \Altum\Uploads::copy_uploaded_file($biolink->settings->background, 'backgrounds/', 'backgrounds/', 'json_error');
 
                     /* Overwrite default settings with the settings of the template */
-                    $settings = $biolink->settings;
+                    $settings = json_encode($biolink->settings);
 
-                    /* Database query */
+                    /* Prepare the statement and execute query */
                     db()->where('biolink_template_id', $biolink_template->biolink_template_id)->update('biolinks_templates', [
                         'total_usage' => db()->inc()
                     ]);
@@ -285,30 +269,10 @@ class LinkAjax extends Controller {
             }
         }
 
-        /* Check for a default theme id */
-        if(!$_POST['biolink_template_id'] && settings()->links->default_biolink_theme_id) {
-            $biolink_theme_id = settings()->links->default_biolink_theme_id;
-
-            /* Get available themes */
-            $biolinks_themes = (new BiolinksThemes())->get_biolinks_themes();
-            $biolink_theme_id = isset($biolink_theme_id) && array_key_exists($biolink_theme_id, $biolinks_themes) ? $biolink_theme_id : null;
-
-            if($biolink_theme_id) {
-                $biolink_theme = $biolinks_themes[$biolink_theme_id];
-
-                /* Save settings for biolink page */
-                $settings = array_merge($settings, (array) $biolink_theme->settings->biolink);
-
-            }
-        }
-
-        $settings = json_encode($settings);
-
         /* Insert to database */
         $link_id = db()->insert('links', [
             'user_id' => $this->user->user_id,
             'domain_id' => $domain_id,
-            'biolink_theme_id' => $biolink_theme_id ?? null,
             'type' => $type,
             'url' => $url,
             'settings' => $settings,
@@ -321,7 +285,7 @@ class LinkAjax extends Controller {
             $biolink_blocks = db()->where('link_id', $biolink_template->link_id)->get('biolinks_blocks');
 
             foreach($biolink_blocks as $biolink_block) {
-                $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+                $biolink_block->settings = json_decode($biolink_block->settings);
 
                 if(is_array($biolink_block->settings)) {
                     $biolink_block->settings = (object) $biolink_block->settings;
@@ -346,16 +310,6 @@ class LinkAjax extends Controller {
                         $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'block_images/', 'block_images/', 'json_error');
                         break;
 
-                    case 'image_slider':
-
-                        $biolink_block->settings->items = (array) $biolink_block->settings->items;
-
-                        foreach($biolink_block->settings->items as $key => $item) {
-                            $biolink_block->settings->items[$key]->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->items[$key]->image, 'block_images/', 'block_images/', 'json_error');
-                        }
-
-                        break;
-
                     default:
                         $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'block_thumbnail_images/', 'block_thumbnail_images/', 'json_error');
                         break;
@@ -378,9 +332,8 @@ class LinkAjax extends Controller {
         }
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -445,9 +398,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -523,9 +475,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -571,8 +522,6 @@ class LinkAjax extends Controller {
             'event_location' => null,
             'event_start_datetime' => null,
             'event_end_datetime' => null,
-            'event_first_alert_datetime' => null,
-            'event_second_alert_datetime' => null,
             'event_timezone' => $this->user->timezone,
         ]);
 
@@ -594,9 +543,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -614,7 +562,7 @@ class LinkAjax extends Controller {
 
         /* Make sure that the user didn't exceed the limit */
         $user_total_files = database()->query("SELECT COUNT(*) AS `total` FROM `links` WHERE `user_id` = {$this->user->user_id} AND `type` = 'static'")->fetch_object()->total;
-        if($this->user->plan_settings->static_limit != -1 && $user_total_files >= $this->user->plan_settings->static_limit) {
+        if($this->user->plan_settings->files_limit != -1 && $user_total_files >= $this->user->plan_settings->files_limit) {
             Response::json(l('global.info_message.plan_feature_limit'), 'error');
         }
 
@@ -741,9 +689,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links_total?user_id=' . $this->user->user_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem($type . '_links_total?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('links_total?user_id=' . $this->user->user_id);
 
         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
     }
@@ -786,18 +733,9 @@ class LinkAjax extends Controller {
         $_POST['expiration_url'] = get_url($_POST['expiration_url']);
         $_POST['clicks_limit'] = empty($_POST['clicks_limit']) ? null : (int) $_POST['clicks_limit'];
         $this->check_location_url($_POST['expiration_url'], true);
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
-        $_POST['app_linking_is_enabled'] = (int) isset($_POST['app_linking_is_enabled']);
-        $_POST['cloaking_is_enabled'] = (int) isset($_POST['cloaking_is_enabled']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
+        $_POST['cloaking_is_enabled'] = (bool) isset($_POST['cloaking_is_enabled']);
         $_POST['cloaking_title'] = input_clean($_POST['cloaking_title'], 70);
-
-        /* Query parameters forwarding */
-        $_POST['forward_query_parameters_is_enabled'] = (int) isset($_POST['forward_query_parameters_is_enabled']);
-
-        /* UTM */
-        $_POST['utm_medium'] = input_clean($_POST['utm_medium'], 128);
-        $_POST['utm_source'] = input_clean($_POST['utm_source'], 128);
-        $_POST['utm_campaign'] = input_clean($_POST['utm_campaign'], 128);
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -834,7 +772,7 @@ class LinkAjax extends Controller {
         if(!$link = db()->where('link_id', $_POST['link_id'])->where('user_id', $this->user->user_id)->getOne('links')) {
             die();
         }
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Cloaking favicon */
         $link->settings->cloaking_favicon = \Altum\Uploads::process_upload($link->settings->cloaking_favicon, 'favicons', 'cloaking_favicon', 'cloaking_favicon_remove', settings()->links->favicon_size_limit, 'json_error');
@@ -875,34 +813,8 @@ class LinkAjax extends Controller {
 
         }
 
-        /* App linking check */
-        $app_linking = [
-            'ios_location_url' => null,
-            'android_location_url' => null,
-            'app' => null,
-        ];
-
-        if($_POST['app_linking_is_enabled']) {
-            $supported_apps = require APP_PATH . 'includes/app_linking.php';
-            foreach($supported_apps as $app_key => $app) {
-                foreach($app['formats'] as $format => $targets) {
-                    if(str_contains($_POST['location_url'], str_replace('%s', '', $format))) {
-                        preg_match('/' . $targets['regex'] . '/', $_POST['location_url'], $match);
-
-                        if(isset($match[1])) {
-                            $app_linking['ios_location_url'] = sprintf($targets['iOS'], $match[1]);
-                            $app_linking['android_location_url'] = sprintf($targets['Android'], $match[1]);
-                            $app_linking['app'] = $app_key;
-                        }
-
-                        break 2;
-                    }
-                }
-            }
-        }
-
         /* Prepare the settings */
-        $targeting_types = ['continent_code', 'country_code', 'device_type', 'browser_language', 'rotation', 'os_name', 'browser_name'];
+        $targeting_types = ['country_code', 'device_type', 'browser_language', 'rotation', 'os_name'];
         $_POST['targeting_type'] = in_array($_POST['targeting_type'], array_merge(['false'], $targeting_types)) ? query_clean($_POST['targeting_type']) : 'false';
         $_POST['http_status_code'] = in_array($_POST['http_status_code'], [301, 302, 307, 308]) ? (int) $_POST['http_status_code'] : 301;
 
@@ -913,26 +825,10 @@ class LinkAjax extends Controller {
             'password' => $_POST['password'],
             'sensitive_content' => $_POST['sensitive_content'],
             'targeting_type' => $_POST['targeting_type'],
-            'http_status_code' => $_POST['http_status_code'],
-
-            /* Cloaking */
             'cloaking_is_enabled' => $_POST['cloaking_is_enabled'],
             'cloaking_title' => $_POST['cloaking_title'],
             'cloaking_favicon' => $link->settings->cloaking_favicon,
-
-            /* App linking */
-            'app_linking_is_enabled' => $_POST['app_linking_is_enabled'],
-            'app_linking' => $app_linking,
-
-            /* Forward query parameters */
-            'forward_query_parameters_is_enabled' => $_POST['forward_query_parameters_is_enabled'],
-
-            /* UTM */
-            'utm' => [
-                'source' => $_POST['utm_source'],
-                'medium' => $_POST['utm_medium'],
-                'campaign' => $_POST['utm_campaign'],
-            ]
+            'http_status_code' => $_POST['http_status_code'],
         ];
 
         /* Process the targeting */
@@ -940,7 +836,7 @@ class LinkAjax extends Controller {
             ${'targeting_' . $targeting_type} = [];
 
             if(isset($_POST['targeting_' . $targeting_type . '_key'])) {
-                foreach($_POST['targeting_' . $targeting_type . '_key'] as $key => $value) {
+                foreach ($_POST['targeting_' . $targeting_type . '_key'] as $key => $value) {
                     if(empty(trim($_POST['targeting_' . $targeting_type . '_value'][$key]))) continue;
 
                     ${'targeting_' . $targeting_type}[] = [
@@ -969,11 +865,10 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
-        Response::json(l('global.success_message.update2'), 'success', ['url' => $url, 'app_linking' => $app_linking]);
+        Response::json(l('global.success_message.update2'), 'success', ['url' => $url]);
     }
 
     private function update_biolink() {
@@ -985,7 +880,7 @@ class LinkAjax extends Controller {
         $_POST['url'] = !empty($_POST['url']) ? get_slug($_POST['url'], '-', false) : false;
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
-            Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
+            Response::json(l('create_biolink_modal.error_message.main_domain_is_disabled'), 'error');
         }
 
         /* Check if custom domain is set */
@@ -1004,7 +899,7 @@ class LinkAjax extends Controller {
         $splash_pages = (new \Altum\Models\SplashPages())->get_splash_pages_by_user_id($this->user->user_id);
         $_POST['splash_page_id'] = !empty($_POST['splash_page_id']) && array_key_exists($_POST['splash_page_id'], $splash_pages) ? (int) $_POST['splash_page_id'] : null;
 
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Get available themes */
         $biolinks_themes = (new BiolinksThemes())->get_biolinks_themes();
@@ -1083,7 +978,7 @@ class LinkAjax extends Controller {
                     Response::json(sprintf(l('global.error_message.file_size_limit'), settings()->links->{$image_key . '_size_limit'}), 'error');
                 }
 
-                if($_FILES[$image_key]['error'] && $_FILES[$image_key]['error'] != UPLOAD_ERR_INI_SIZE) {
+                if($_FILES[$file_name]['error'] && $_FILES[$file_name]['error'] != UPLOAD_ERR_INI_SIZE) {
                     Response::json(l('global.error_message.file_upload'), 'error');
                 }
 
@@ -1176,8 +1071,6 @@ class LinkAjax extends Controller {
         $biolink_backgrounds = require APP_PATH . 'includes/biolink_backgrounds.php';
         $_POST['background_type'] = array_key_exists($_POST['background_type'], $biolink_backgrounds) ? $_POST['background_type'] : 'preset';
         $_POST['background_attachment'] = isset($_POST['background_attachment']) && in_array($_POST['background_attachment'], ['scroll', 'fixed']) ? $_POST['background_attachment'] : 'scroll';
-        $_POST['background_blur'] = isset($_POST['background_blur']) && in_array((int) $_POST['background_attachment'], range(0, 30)) ? (int) $_POST['background_blur'] : 0;
-        $_POST['background_brightness'] = isset($_POST['background_brightness']) && in_array((int) $_POST['background_attachment'], range(0, 150)) ? (int) $_POST['background_brightness'] : 0;
 
         switch($_POST['background_type']) {
             case 'preset':
@@ -1304,22 +1197,24 @@ class LinkAjax extends Controller {
         }
 
         $_POST['text_color'] = !preg_match('/#([A-Fa-f0-9]{3,4}){1,2}\b/i', $_POST['text_color']) ? '#ffffff' : $_POST['text_color'];
-        $_POST['display_branding'] = (int) isset($_POST['display_branding']);
+        $_POST['display_branding'] = (bool) isset($_POST['display_branding']);
+        $_POST['theme_enable'] = (bool) isset($_POST['theme_enable']);
+        $_POST['theme_default'] = (bool) isset($_POST['theme_default']);
         $_POST['verified_location'] = in_array($_POST['verified_location'], ['', 'top', 'bottom']) ? query_clean($_POST['verified_location']) : 'top';
         $_POST['branding_name'] = mb_substr(trim(query_clean($_POST['branding_name'])), 0, 128);
         $_POST['branding_url'] = get_url($_POST['branding_url']);
-        $_POST['seo_block'] = (int) isset($_POST['seo_block']);
+        $_POST['seo_block'] = (bool) isset($_POST['seo_block']);
         $_POST['seo_title'] = trim(query_clean(mb_substr($_POST['seo_title'], 0, 70)));
         $_POST['seo_meta_description'] = trim(query_clean(mb_substr($_POST['seo_meta_description'], 0, 160)));
         $_POST['seo_meta_keywords'] = trim(query_clean(mb_substr($_POST['seo_meta_keywords'], 0, 160)));
-        $_POST['utm_medium'] = input_clean($_POST['utm_medium'], 128);
-        $_POST['utm_source'] = input_clean($_POST['utm_source'], 128);
+        $_POST['utm_medium'] = mb_substr(trim(query_clean($_POST['utm_medium'])), 0, 128);
+        $_POST['utm_source'] = mb_substr(trim(query_clean($_POST['utm_source'])), 0, 128);
         $_POST['password'] = !empty($_POST['qweasdzxc']) ?
             ($_POST['qweasdzxc'] != $link->settings->password ? password_hash($_POST['qweasdzxc'], PASSWORD_DEFAULT) : $link->settings->password)
             : null;
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
-        $_POST['custom_css'] = mb_substr(trim($_POST['custom_css']), 0, 8192);
-        $_POST['custom_js'] = mb_substr(trim($_POST['custom_js']), 0, 8192);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
+        $_POST['custom_css'] = input_clean($_POST['custom_css'], 8192);
+        $_POST['custom_js'] = input_clean($_POST['custom_js'], 8192);
         $_POST['leap_link'] = get_url($_POST['leap_link'] ?? null);
         $this->check_location_url($_POST['leap_link'], true);
 
@@ -1328,28 +1223,20 @@ class LinkAjax extends Controller {
         $_POST['font'] = !array_key_exists($_POST['font'], $biolink_fonts) ? false : query_clean($_POST['font']);
         $_POST['font_size'] = (int) $_POST['font_size'] < 14 || (int) $_POST['font_size'] > 22 ? 16 : (int) $_POST['font_size'];
 
-        /* Width */
-        $_POST['width'] = isset($_POST['width']) && in_array($_POST['width'], [6, 8, 10, 12]) ? (int) $_POST['width'] : 8;
-
-        /* Block spacing */
-        $_POST['block_spacing'] = isset($_POST['block_spacing']) && in_array($_POST['block_spacing'], [1, 2, 3,]) ? (int) $_POST['block_spacing'] : 8;
-
-        /* Link hover animation */
-        $_POST['hover_animation'] = isset($_POST['hover_animation']) && in_array($_POST['hover_animation'], ['false', 'smooth', 'instant',]) ? input_clean($_POST['hover_animation']) : 'smooth';
-
         /* Set the new settings variable */
         $settings = [
             'verified_location' => $_POST['verified_location'],
             'background_type' => $_POST['background_type'],
             'background_attachment' => $_POST['background_attachment'],
-            'background_blur' => $_POST['background_blur'],
-            'background_brightness' => $_POST['background_brightness'],
             'background' => $background ?? $link->settings->background,
             'background_color_one' => $background_color_one ?? null,
             'background_color_two' => $background_color_two ?? null,
             'favicon' => $image_uploaded_file['favicon'],
             'text_color' => $_POST['text_color'],
             'display_branding' => $_POST['display_branding'],
+            'theme_enable' => $_POST['theme_enable'],
+            'theme_name' => $_POST['theme_name'],
+            'theme_default' => $_POST['theme_default'],
             'branding' => [
                 'name' => $_POST['branding_name'],
                 'url' => $_POST['branding_url'],
@@ -1366,9 +1253,6 @@ class LinkAjax extends Controller {
                 'source' => $_POST['utm_source'],
             ],
             'font' => $_POST['font'],
-            'width' => $_POST['width'],
-            'block_spacing' => $_POST['block_spacing'],
-            'hover_animation' => $_POST['hover_animation'],
             'font_size' => $_POST['font_size'],
             'password' => $_POST['password'],
             'sensitive_content' => $_POST['sensitive_content'],
@@ -1390,7 +1274,7 @@ class LinkAjax extends Controller {
 
             $biolink_blocks_result = database()->query("SELECT `biolink_block_id`, `settings` FROM `biolinks_blocks` WHERE `link_id` = {$link->link_id} AND `type` IN ({$themable_blocks_sql})");
             while($biolink_block = $biolink_blocks_result->fetch_object()) {
-                $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+                $biolink_block->settings = json_decode($biolink_block->settings);
                 $new_biolink_block_settings = json_encode(array_merge((array) $biolink_block->settings, (array) $biolink_theme->settings->biolink_block));
 
                 db()->where('biolink_block_id', $biolink_block->biolink_block_id)->update('biolinks_blocks', [
@@ -1399,9 +1283,8 @@ class LinkAjax extends Controller {
             }
 
             /* Clear the cache */
-            cache()->deleteItem('link?link_id=' . $link->link_id);
-            cache()->deleteItemsByTag('link_id=' . $link->link_id);
-            cache()->deleteItem('links?user_id=' . $this->user->user_id);
+            \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+            \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
         }
 
         /* Prepare background url if needed */
@@ -1422,15 +1305,20 @@ class LinkAjax extends Controller {
             'last_datetime' => \Altum\Date::$date,
         ]);
 
+        /* Update the biolink page blocks if needed */
+        if($link->project_id != $_POST['project_id']) {
+            db()->where('biolink_id', $link->link_id)->update('links', ['project_id' => $_POST['project_id']]);
+        }
+
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
         Response::json(l('global.success_message.update2'), 'success', [
             'url' => $url,
             'images' => [
                 'seo_image' => $image_url['seo_image'],
+                'theme_image' => $image_url['theme_image'],
                 'favicon' => $image_url['favicon'],
                 'background' => $image_url['background'],
             ],
@@ -1456,8 +1344,8 @@ class LinkAjax extends Controller {
         $_POST['expiration_url'] = get_url($_POST['expiration_url']);
         $_POST['clicks_limit'] = empty($_POST['clicks_limit']) ? null : (int) $_POST['clicks_limit'];
         $this->check_location_url($_POST['expiration_url'], true);
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
-        $_POST['force_download_is_enabled'] = (int) isset($_POST['force_download_is_enabled']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
+        $_POST['force_download_is_enabled'] = (bool) isset($_POST['force_download_is_enabled']);
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -1501,7 +1389,7 @@ class LinkAjax extends Controller {
         $splash_pages = (new \Altum\Models\SplashPages())->get_splash_pages_by_user_id($this->user->user_id);
         $_POST['splash_page_id'] = !empty($_POST['splash_page_id']) && array_key_exists($_POST['splash_page_id'], $splash_pages) ? (int) $_POST['splash_page_id'] : null;
 
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Check for a password set */
         $_POST['password'] = !empty($_POST['qweasdzxc']) ?
@@ -1556,9 +1444,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
         Response::json(l('global.success_message.update2'), 'success', ['url' => $url, 'file' => $db_file, 'file_url' => \Altum\Uploads::get_full_url('files') . $db_file]);
     }
@@ -1581,7 +1468,7 @@ class LinkAjax extends Controller {
         $_POST['expiration_url'] = get_url($_POST['expiration_url']);
         $_POST['clicks_limit'] = empty($_POST['clicks_limit']) ? null : (int) $_POST['clicks_limit'];
         $this->check_location_url($_POST['expiration_url'], true);
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -1625,7 +1512,7 @@ class LinkAjax extends Controller {
         $splash_pages = (new \Altum\Models\SplashPages())->get_splash_pages_by_user_id($this->user->user_id);
         $_POST['splash_page_id'] = !empty($_POST['splash_page_id']) && array_key_exists($_POST['splash_page_id'], $splash_pages) ? (int) $_POST['splash_page_id'] : null;
 
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Check for a password set */
         $_POST['password'] = !empty($_POST['qweasdzxc']) ?
@@ -1765,9 +1652,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
         Response::json(l('global.success_message.update2'), 'success', ['url' => $url]);
     }
@@ -1790,7 +1676,7 @@ class LinkAjax extends Controller {
         $_POST['expiration_url'] = get_url($_POST['expiration_url']);
         $_POST['clicks_limit'] = empty($_POST['clicks_limit']) ? null : (int) $_POST['clicks_limit'];
         $this->check_location_url($_POST['expiration_url'], true);
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -1834,7 +1720,7 @@ class LinkAjax extends Controller {
         $splash_pages = (new \Altum\Models\SplashPages())->get_splash_pages_by_user_id($this->user->user_id);
         $_POST['splash_page_id'] = !empty($_POST['splash_page_id']) && array_key_exists($_POST['splash_page_id'], $splash_pages) ? (int) $_POST['splash_page_id'] : null;
 
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Check for a password set */
         $_POST['password'] = !empty($_POST['qweasdzxc']) ?
@@ -1891,19 +1777,15 @@ class LinkAjax extends Controller {
         $settings['vcard_note'] = $_POST['vcard_note'] = mb_substr(input_clean($_POST['vcard_note']), 0, $this->links_types['vcard']['fields']['note']['max_length']);
 
         /* Phone numbers */
-        if(!isset($_POST['vcard_phone_number_label'])) {
-            $_POST['vcard_phone_number_label'] = [];
-            $_POST['vcard_phone_number_value'] = [];
+        if(!isset($_POST['vcard_phone_numbers'])) {
+            $_POST['vcard_phone_numbers'] = [];
         }
         $vcard_phone_numbers = [];
-        foreach($_POST['vcard_phone_number_label'] as $key => $value) {
+        foreach($_POST['vcard_phone_numbers'] as $key => $value) {
             if(empty(trim($value))) continue;
             if($key >= 20) continue;
 
-            $vcard_phone_numbers[] = [
-                'label' => mb_substr(input_clean($value), 0, $this->links_types['vcard']['fields']['phone_number_value']['max_length']),
-                'value' => mb_substr(input_clean($_POST['vcard_phone_number_value'][$key]), 0, $this->links_types['vcard']['fields']['phone_number_value']['max_length'])
-            ];
+            $vcard_phone_numbers[] = mb_substr(input_clean($value), 0, $this->links_types['vcard']['fields']['phone_number']['max_length']);
         }
         $settings['vcard_phone_numbers'] = $vcard_phone_numbers;
 
@@ -1940,9 +1822,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
         Response::json(l('global.success_message.update2'), 'success', ['url' => $url, 'images' => ['vcard_avatar' => $vcard_avatar_url]]);
     }
@@ -1965,7 +1846,7 @@ class LinkAjax extends Controller {
         $_POST['expiration_url'] = get_url($_POST['expiration_url']);
         $_POST['clicks_limit'] = empty($_POST['clicks_limit']) ? null : (int) $_POST['clicks_limit'];
         $this->check_location_url($_POST['expiration_url'], true);
-        $_POST['sensitive_content'] = (int) isset($_POST['sensitive_content']);
+        $_POST['sensitive_content'] = (bool) isset($_POST['sensitive_content']);
 
         if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
             Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
@@ -2009,7 +1890,7 @@ class LinkAjax extends Controller {
         $splash_pages = (new \Altum\Models\SplashPages())->get_splash_pages_by_user_id($this->user->user_id);
         $_POST['splash_page_id'] = !empty($_POST['splash_page_id']) && array_key_exists($_POST['splash_page_id'], $splash_pages) ? (int) $_POST['splash_page_id'] : null;
 
-        $link->settings = json_decode($link->settings ?? '');
+        $link->settings = json_decode($link->settings);
 
         /* Check for a password set */
         $_POST['password'] = !empty($_POST['qweasdzxc']) ?
@@ -2053,8 +1934,6 @@ class LinkAjax extends Controller {
         $settings['event_timezone'] = $_POST['event_timezone'] = in_array($_POST['event_timezone'], \DateTimeZone::listIdentifiers()) ? input_clean($_POST['event_timezone']) : Date::$default_timezone;
         $settings['event_start_datetime'] = $_POST['event_start_datetime'] = (new \DateTime($_POST['event_start_datetime']))->format('Y-m-d\TH:i:s');
         $settings['event_end_datetime'] = $_POST['event_end_datetime'] = (new \DateTime($_POST['event_end_datetime']))->format('Y-m-d\TH:i:s');
-        $settings['event_first_alert_datetime'] = $_POST['event_first_alert_datetime'] = (new \DateTime($_POST['event_first_alert_datetime']))->format('Y-m-d\TH:i:s');
-        $settings['event_second_alert_datetime'] = $_POST['event_second_alert_datetime'] = (new \DateTime($_POST['event_second_alert_datetime']))->format('Y-m-d\TH:i:s');
 
         $settings = json_encode($settings);
 
@@ -2071,9 +1950,8 @@ class LinkAjax extends Controller {
         ]);
 
         /* Clear the cache */
-        cache()->deleteItem('link?link_id=' . $link->link_id);
-        cache()->deleteItemsByTag('link_id=' . $link->link_id);
-        cache()->deleteItem('links?user_id=' . $this->user->user_id);
+        \Altum\Cache::$adapter->deleteItem('link?link_id=' . $link->link_id);
+        \Altum\Cache::$adapter->deleteItemsByTag('link_id=' . $link->link_id);
 
         Response::json(l('global.success_message.update2'), 'success', ['url' => $url]);
     }
@@ -2167,10 +2045,10 @@ class LinkAjax extends Controller {
         if(!Alerts::has_field_errors() && !Alerts::has_errors()) {
 
             /* Duplicate the link */
-            $link->settings = json_decode($link->settings ?? '');
+            $link->settings = json_decode($link->settings);
 
             if($link->type == 'biolink') {
-                $link->settings->seo->image = \Altum\Uploads::copy_uploaded_file($link->settings->seo->image, 'block_images/', 'block_images/', 'json_error');
+                $link->settings->seo_image = \Altum\Uploads::copy_uploaded_file($link->settings->seo_image, 'block_images/', 'block_images/', 'json_error');
                 $link->settings->favicon = \Altum\Uploads::copy_uploaded_file($link->settings->favicon, 'favicons/', 'favicons/', 'json_error');
                 if($link->settings->background_type == 'image') $link->settings->background = \Altum\Uploads::copy_uploaded_file($link->settings->background, 'backgrounds/', 'backgrounds/', 'json_error');
             }
@@ -2194,6 +2072,7 @@ class LinkAjax extends Controller {
                 'user_id' => $this->user->user_id,
                 'project_id' => $link->project_id,
                 'biolink_theme_id' => $link->biolink_theme_id,
+                'biolink_id' => $link->biolink_id,
                 'domain_id' => $link->domain_id,
                 'pixels_ids' => $link->pixels_ids,
                 'type' => $link->type,
@@ -2213,7 +2092,7 @@ class LinkAjax extends Controller {
                 $biolink_blocks = db()->where('link_id', $_POST['link_id'])->where('user_id', $this->user->user_id)->get('biolinks_blocks');
 
                 foreach($biolink_blocks as $biolink_block) {
-                    $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+                    $biolink_block->settings = json_decode($biolink_block->settings);
 
                     if(is_array($biolink_block->settings)) {
                         $biolink_block->settings = (object) $biolink_block->settings;
@@ -2236,14 +2115,6 @@ class LinkAjax extends Controller {
                         case 'image':
                         case 'image_grid':
                             $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'block_images/', 'block_images/', 'json_error');
-                            break;
-
-                        case 'image_slider':
-                            $biolink_block->settings->items = (array) $biolink_block->settings->items;
-                            foreach($biolink_block->settings->items as $key => $item) {
-                                $biolink_block->settings->items[$key]->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->items[$key]->image, 'block_images/', 'block_images/', 'json_error');
-                            }
-
                             break;
 
                         default:
@@ -2273,6 +2144,173 @@ class LinkAjax extends Controller {
             /* Redirect */
             redirect('link/' . $link_id);
         }
+        
+                redirect('links');
+    }
+
+    public function duplicate_theme() {
+        /* Team checks */
+        if(\Altum\Teams::is_delegated() && !\Altum\Teams::has_access('create.links')) {
+            Alerts::add_info(l('global.info_message.team_no_access'));
+            redirect('links');
+        }
+
+        $_POST['link_id'] = (int) $_POST['link_id'];
+        $_POST['url'] = !empty($_POST['url']) ? get_slug($_POST['url'], '-', false) : false;
+        
+        if(empty($_POST['domain_id']) && !settings()->links->main_domain_is_enabled && !\Altum\Authentication::is_admin()) {
+            Response::json(l('create_link_modal.error_message.main_domain_is_disabled'), 'error');
+        }
+
+        /* Check if custom domain is set */
+        $domain_id = $this->get_domain_id($_POST['domain_id'] ?? false);
+        
+
+        //ALTUMCODE.DEMO: if(DEMO) if($this->user->user_id == 1) Alerts::add_error('Please create an account on the demo to test out this function.');
+
+        if(!\Altum\Csrf::check()) {
+            Alerts::add_error(l('global.error_message.invalid_csrf_token'));
+
+
+        redirect('links');
+    }
+
+/* Get the link data */
+        $link = db()->where('link_id', $_POST['link_id'])->where('user_id', 1)->getOne('links');
+
+        if(!$link) {
+            redirect('links');
+        }
+
+        /* Make sure that the user didn't exceed the limit */
+          if($link->type == 'biolink') {
+            if(!settings()->links->biolinks_is_enabled) {
+               Response::json(l('global.error_message.basic'), 'error');
+            }
+
+            $user_total_biolinks = database()->query("SELECT COUNT(*) AS `total` FROM `links` WHERE `user_id` = {$this->user->user_id} AND `type` = 'biolink'")->fetch_object()->total;
+            if($this->user->plan_settings->biolinks_limit != -1 && $user_total_biolinks >= $this->user->plan_settings->biolinks_limit) {
+               Alerts::add_error(l('global.info_message.plan_feature_limit'));
+            }
+        }
+
+
+        if(!Alerts::has_field_errors() && !Alerts::has_errors()) {
+
+            /* Duplicate the link */
+            $link->settings = json_decode($link->settings);
+
+            if($link->type == 'biolink') {
+                $link->settings->seo->image = \Altum\Uploads::copy_uploaded_file($link->settings->seo->image, 'block_images/', 'block_images/', 'json_error');
+                $link->settings->favicon = \Altum\Uploads::copy_uploaded_file($link->settings->favicon, 'favicons/', 'favicons/', 'json_error');
+                if ($link->settings->background_type == 'image') $link->settings->background = \Altum\Uploads::copy_uploaded_file($link->settings->background, 'backgrounds/', 'backgrounds/', 'json_error');
+            }
+
+            
+        /* Check for duplicate url if needed */
+        if($_POST['url']) {
+            if(db()->where('url', $_POST['url'])->where('domain_id', $domain_id)->getValue('links', 'link_id')) {
+                Response::json(l('link.error_message.url_exists'), 'error');
+            }
+        }
+        
+        $url = $_POST['url'] ? $_POST['url'] : mb_strtolower(string_generate(10)); 
+        
+        /* Generate random url if not specified */
+        while(db()->where('url', $url)->where('domain_id', $domain_id)->getValue('links', 'link_id')) {
+            $url = mb_strtolower(string_generate(settings()->links->random_url_length ?? 7));
+        }
+
+        $this->check_url($_POST['url']);
+        
+
+       $link->settings->theme_enable = false;
+       $link->settings->seo->image = null;
+       $link->settings->theme_default = false;
+       $link->settings->theme_name = '';
+       
+
+            /* Database query */
+            $link_id = db()->insert('links', [
+                'user_id' => $this->user->user_id,
+                'project_id' => $link->project_id,
+                'biolink_theme_id' => $link->biolink_theme_id,
+                'biolink_id' => $link->biolink_id,
+                'domain_id' => $link->domain_id,
+                'pixels_ids' => $link->pixels_ids,
+                'type' => $link->type,
+                'url' => $url,
+                'location_url' => $link->location_url,
+                'settings' => json_encode($link->settings),
+                'start_date' => $link->start_date,
+                'end_date' => $link->end_date,
+                'is_verified' => $link->is_verified,
+                'is_enabled' => $link->is_enabled,
+                'datetime' => \Altum\Date::$date,
+            ]);
+
+            /* Duplicate the biolink blocks */
+            if ($link->type == 'biolink') {
+                /* Get all biolink blocks if needed */
+                $biolink_blocks = db()->where('link_id', $_POST['link_id'])->where('user_id', 1)->get('biolinks_blocks');
+
+
+                foreach($biolink_blocks as $biolink_block) {
+                    $biolink_block->settings = json_decode($biolink_block->settings);
+
+                    if(is_array($biolink_block->settings)) {
+                        $biolink_block->settings = (object) $biolink_block->settings;
+                    }
+
+                    /* Duplication of resources */
+                    switch($biolink_block->type) {
+                        case 'file':
+                            $biolink_block->settings->file = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->file, \Altum\Uploads::get_path('files'), \Altum\Uploads::get_path('files'), 'json_error');
+                            break;
+
+                        case 'avatar':
+                            $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'avatars/', 'avatars/', 'json_error');
+                            break;
+
+                        case 'vcard':
+                            $biolink_block->settings->vcard_avatar = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->vcard_avatar, 'avatars/', 'avatars/', 'json_error');
+                            break;
+
+                        case 'image':
+                        case 'image_grid':
+                            $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'block_images/', 'block_images/', 'json_error');
+                            break;
+
+
+                        default:
+                            $biolink_block->settings->image = \Altum\Uploads::copy_uploaded_file($biolink_block->settings->image, 'block_thumbnail_images/', 'block_thumbnail_images/', 'json_error');
+                            break;
+                    }
+
+                    /* Database query */
+                    db()->insert('biolinks_blocks', [
+                        'user_id' => $this->user->user_id,
+                        'link_id' => $link_id,
+                        'type' => $biolink_block->type,
+                        'location_url' => $biolink_block->location_url,
+                        'settings' => json_encode($biolink_block->settings),
+                        'order' => $biolink_block->order,
+                        'start_date' => $biolink_block->start_date,
+                        'end_date' => $biolink_block->end_date,
+                        'is_enabled' => $biolink_block->is_enabled,
+                        'datetime' => \Altum\Date::$date,
+                    ]);
+                }
+            }
+
+         Response::json(l('global.success_message.create2'), 'success', ['url' => url('link/' . $link_id)]);
+         
+            /* Set a nice success message */
+            Alerts::add_success(l('global.success_message.create2'));
+
+            /* Redirect */
+            redirect('link/' . $link_id);
+        }
 
         redirect('links');
     }
@@ -2289,15 +2327,6 @@ class LinkAjax extends Controller {
             /* Make sure the custom url is not blacklisted */
             if(in_array(mb_strtolower($url), explode(',', settings()->links->blacklisted_keywords))) {
                 Response::json(l('link.error_message.blacklisted_keyword'), 'error');
-            }
-
-            /* Make sure the custom url meets the requirements */
-            if(mb_strlen($url) < ($this->user->plan_settings->url_minimum_characters ?? 1)) {
-                Response::json(sprintf(l('link.error_message.url_minimum_characters'), $this->user->plan_settings->url_minimum_characters ?? 1), 'error');
-            }
-
-            if(mb_strlen($url) > ($this->user->plan_settings->url_maximum_characters ?? 64)) {
-                Response::json(sprintf(l('link.error_message.url_maximum_characters'), $this->user->plan_settings->url_maximum_characters ?? 64), 'error');
             }
         }
     }

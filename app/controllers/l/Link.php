@@ -59,7 +59,7 @@ class Link extends Controller {
         }
 
         /* If a preview is asked for, make sure it is correct */
-        if($this->link->type == 'biolink' && isset($_GET['preview']) && $_GET['preview'] == md5($this->link->user_id)) {
+        if(isset($_GET['preview']) && $_GET['preview'] == md5($this->link->user_id)) {
             $this->is_preview = true;
 
             /* Get available themes */
@@ -84,7 +84,7 @@ class Link extends Controller {
         (new User())->process_user_plan_expiration_by_user($this->user);
 
         /* Parse the settings */
-        $this->link->settings = json_decode($this->link->settings ?? '');
+        $this->link->settings = json_decode($this->link->settings);
         $this->link->pixels_ids = json_decode($this->link->pixels_ids ?? '[]');
 
         /* Determine the actual full url */
@@ -129,7 +129,7 @@ class Link extends Controller {
             /* Set a custom title */
             Title::set(l('link.splash.title'));
 
-            /* Prepare the view */
+            /* Prepare the View */
             $view = new \Altum\View('l/partials/splash', (array) $this);
             $this->add_view_content('content', $view->run($data));
 
@@ -146,7 +146,7 @@ class Link extends Controller {
                 $current_clicks = db()->where('link_id', $this->link->link_id)->getValue('links', 'clicks');
             }
 
-            if(
+            if (
                 (
                     ($this->link->settings->schedule ?? false) && !empty($this->link->start_date) && !empty($this->link->end_date) &&
                     (
@@ -252,38 +252,20 @@ class Link extends Controller {
 
         else {
 
-            /* If its a block type tracking */
-            if($this->type == 'biolink_block') {
-                /* Store statistics */
-                $this->create_statistics();
-
-                if($this->link->type == 'link') {
-                    /* Process short url redirection */
-                    $this->process_link();
-                } elseif($this->link->type == 'vcard') {
-                    $this->process_vcard();
-                }
-            }
-
             /* Check what to do next */
             if($this->link->type == 'biolink') {
-
                 /* Store statistics */
                 $this->create_statistics();
 
                 /* Process biolink page */
                 $this->process_biolink();
-
             } else if($this->link->type == 'link') {
-
                 /* Store statistics */
                 $this->create_statistics();
 
                 /* Process short url redirection */
                 $this->process_link();
-
             } else if($this->link->type == 'vcard') {
-
                 if(count($this->link->pixels_ids) && !isset($_GET['process'])) {
                     $this->redirect_to($this->link->full_url . '&process=true');
                 }
@@ -291,11 +273,9 @@ class Link extends Controller {
                 /* Store statistics */
                 $this->create_statistics();
 
-                /* Process vcard download  */
+                /* Process vcard download */
                 $this->process_vcard();
-
             } else if($this->link->type == 'event') {
-
                 if(count($this->link->pixels_ids) && !isset($_GET['process'])) {
                     $this->redirect_to($this->link->full_url . '&process=true');
                 }
@@ -305,9 +285,7 @@ class Link extends Controller {
 
                 /* Process event download */
                 $this->process_event();
-
             } else if($this->link->type == 'file') {
-
                 if(count($this->link->pixels_ids) && !isset($_GET['process'])) {
                     $this->redirect_to($this->link->full_url . '&process=true');
                 }
@@ -317,12 +295,9 @@ class Link extends Controller {
 
                 /* Process file display / download */
                 $this->process_file();
-
             } else if($this->link->type == 'static') {
-
                 /* Process */
                 $this->process_static();
-
             }
         }
 
@@ -365,22 +340,23 @@ class Link extends Controller {
         $city_name = isset($maxmind) && isset($maxmind['city']) ? $maxmind['city']['names']['en'] : null;
 
         /* Process referrer */
-        $referrer = [
-            'host' => null,
-            'path' => null
-        ];
+        $referrer = isset($_SERVER['HTTP_REFERER']) ? parse_url($_SERVER['HTTP_REFERER']) : null;
 
-        if(isset($_SERVER['HTTP_REFERER'])) {
-            $referrer = parse_url($_SERVER['HTTP_REFERER']);
+        if(!isset($referrer)) {
+            $referrer = [
+                'host' => null,
+                'path' => null
+            ];
+        }
 
-            if($_SERVER['HTTP_REFERER'] == $this->link->full_url) {
-                $is_unique = 0;
+        /* Check if the referrer comes from the same location */
+        if($this->type == 'link' && isset($referrer) && isset($referrer['host']) && $referrer['host'] == parse_url($this->link->full_url)['host']) {
+            $is_unique = 0;
 
-                $referrer = [
-                    'host' => null,
-                    'path' => null
-                ];
-            }
+            $referrer = [
+                'host' => null,
+                'path' => null
+            ];
         }
 
         /* Check if referrer actually comes from the QR code */
@@ -391,9 +367,9 @@ class Link extends Controller {
             ];
         }
 
-        $utm_source = input_clean($_GET['utm_source'] ?? null);
-        $utm_medium = input_clean($_GET['utm_medium'] ?? null);
-        $utm_campaign = input_clean($_GET['utm_campaign'] ?? null);
+        $utm_source = $_GET['utm_source'] ?? null;
+        $utm_medium = $_GET['utm_medium'] ?? null;
+        $utm_campaign = $_GET['utm_campaign'] ?? null;
 
         /* Insert the log */
         db()->insert('track_links', [
@@ -416,10 +392,10 @@ class Link extends Controller {
         ]);
 
         /* Add the unique hit to the link table as well */
-        if($this->type == 'biolink_block') {
-            db()->where('biolink_block_id', $this->link->biolink_block_id)->update('biolinks_blocks', ['clicks' => db()->inc()]);
-        } else {
+        if(in_array($this->type, ['link', 'file', 'vcard'])) {
             db()->where('link_id', $this->link->link_id)->update('links', ['clicks' => db()->inc()]);
+        } else {
+            db()->where('biolink_block_id', $this->link->biolink_block_id)->update('biolinks_blocks', ['clicks' => db()->inc()]);
         }
 
         /* Set cookie to try and avoid multiple entrances */
@@ -436,7 +412,7 @@ class Link extends Controller {
         }
 
         /* Get all the links inside of the biolink */
-        $cache_instance = cache()->getItem('link?link_id=' . $this->link->link_id);
+        $cache_instance = \Altum\Cache::$adapter->getItem('link?link_id=' . $this->link->link_id);
 
         /* Set cache if not existing */
         if(is_null($cache_instance->get())) {
@@ -448,7 +424,7 @@ class Link extends Controller {
                 $biolink_blocks[] = $row;
             }
 
-            cache()->save($cache_instance->set($biolink_blocks)->expiresAfter(CACHE_DEFAULT_SECONDS));
+            \Altum\Cache::$adapter->save($cache_instance->set($biolink_blocks)->expiresAfter(CACHE_DEFAULT_SECONDS));
 
         } else {
 
@@ -482,7 +458,7 @@ class Link extends Controller {
             $this->add_view_content('pixels', $pixels_view->run(['pixels' => $pixels, 'type' => 'biolink']));
         }
 
-        /* Prepare the view */
+        /* Prepare the View */
         $view_content = \Altum\Link::get_biolink($this, $this->link, $this->user, $biolink_blocks);
 
         $this->add_view_content('content', $view_content);
@@ -490,6 +466,7 @@ class Link extends Controller {
         /* Prepare the view */
         $biolink_wrapper = new \Altum\View('l/biolink_wrapper', (array) $this);
         echo $biolink_wrapper->run();
+        die();
     }
 
     private function process_vcard() {
@@ -506,6 +483,7 @@ class Link extends Controller {
         }
 
         $vcard->addName($this->link->settings->vcard_last_name, $this->link->settings->vcard_first_name);
+        $vcard->addAddress(null, null, $this->link->settings->vcard_street, $this->link->settings->vcard_city, $this->link->settings->vcard_region, $this->link->settings->vcard_zip, $this->link->settings->vcard_country);
         $vcard->addEmail($this->link->settings->vcard_email);
         $vcard->addURL($this->link->settings->vcard_url);
         $vcard->addCompany($this->link->settings->vcard_company);
@@ -513,34 +491,15 @@ class Link extends Controller {
         $vcard->addBirthday($this->link->settings->vcard_birthday);
         $vcard->addNote($this->link->settings->vcard_note);
 
-        /* Address */
-        if($this->link->settings->vcard_street || $this->link->settings->vcard_city || $this->link->settings->vcard_region || $this->link->settings->vcard_zip || $this->link->settings->vcard_country) {
-            $vcard->addAddress(null, null, $this->link->settings->vcard_street, $this->link->settings->vcard_city, $this->link->settings->vcard_region, $this->link->settings->vcard_zip, $this->link->settings->vcard_country);
+        /* old phone number, to be removed later */
+        if(isset($this->link->settings->vcard_phone_number)) {
+            $vcard->addPhoneNumber($this->link->settings->vcard_phone_number);
         }
 
         /* Phone numbers */
-        foreach($this->link->settings->vcard_phone_numbers as $key => $phone_number) {
-            $phone_number->value = htmlspecialchars_decode($phone_number->value, ENT_QUOTES);
-            $phone_number->label = htmlspecialchars_decode($phone_number->label, ENT_QUOTES);
-
-            /* Custom label */
-            if($phone_number->label) {
-                $vcard->setProperty(
-                    'item' . $key . '.TEL',
-                    'item' . $key . '.TEL',
-                    $phone_number->value
-                );
-                $vcard->setProperty(
-                    'item' . $key . '.X-ABLabel',
-                    'item' . $key . '.X-ABLabel',
-                    $phone_number->label
-                );
-            }
-
-            /* Default label */
-            else {
-                $vcard->addPhoneNumber($phone_number->value);
-            }
+        foreach($this->link->settings->vcard_phone_numbers as $phone_number) {
+            $phone_number = htmlspecialchars_decode($phone_number, ENT_QUOTES);
+            $vcard->addPhoneNumber($phone_number);
         }
 
         /* Socials */
@@ -575,8 +534,6 @@ class Link extends Controller {
                     ->description($this->link->settings->event_note)
                     ->startsAt(new \DateTime($this->link->settings->event_start_datetime, new \DateTimeZone($this->link->settings->event_timezone)))
                     ->endsAt(new \DateTime($this->link->settings->event_end_datetime, new \DateTimeZone($this->link->settings->event_timezone)))
-                    ->alertAt(new \DateTime($this->link->settings->event_first_alert_datetime, new \DateTimeZone($this->link->settings->event_timezone)))
-                    ->alertAt(new \DateTime($this->link->settings->event_second_alert_datetime, new \DateTimeZone($this->link->settings->event_timezone)))
             )
             ->get();
 
@@ -678,43 +635,24 @@ class Link extends Controller {
             redirect();
         }
 
-        /* Prepare important content type header */
-        $mime_types = [
-            'svg' => 'image/svg+xml',
-            'css' => 'text/css',
-            'js' => 'application/javascript',
-            'xml' => 'application/xml',
-
-            /* Fonts */
-            'woff' => 'font/woff',
-            'woff2' => 'font/woff2',
-            'otf' => 'font/otf',
-            'ttf' => 'font/ttf',
-            'eot' => 'application/vnd.ms-fontobject',
-        ];
-
-        $requested_file_extension = explode('.', $requested_file);
-        $requested_file_extension = mb_strtolower(end($requested_file_extension));
-
-        if(array_key_exists($requested_file_extension, $mime_types)) {
-            header('Content-Type: ' . $mime_types[$requested_file_extension]);
+        /* Prepare headers */
+        if(string_ends_with('.css', $requested_file)) {
+            header('Content-Type: text/css');
         } else {
             header('Content-Type: ' . mime_content_type($full_requested_file));
         }
-
-        /* Other headers */
         header('Cache-Control: max-age=' . 86400 * 30);
         header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 60 * 24 * 30)));
         //header('Content-length: ' . filesize($full_requested_file));
 
         /* Gzip content */
-        ob_start('ob_gzhandler');
+        //ob_start('ob_gzhandler');
 
         /* Output the file source */
         readfile($full_requested_file);
 
         /* Output gzipped content */
-        ob_end_flush();
+        //ob_end_flush();
 
         /* Store statistics for html pages accesses */
         if(string_ends_with('.html', $requested_file)) {
@@ -729,48 +667,9 @@ class Link extends Controller {
             die();
         }
 
-        /* Check for query forwarding */
-        $append_query = null;
-        if($this->link->settings->forward_query_parameters_is_enabled && \Altum\Router::$original_request_query) {
-            $append_query = \Altum\Router::$original_request_query;
-        }
-
-        if($this->user->plan_settings->utm) {
-            $utm_parameters = [];
-            if($this->link->settings->utm->source) $utm_parameters['utm_source'] = $this->link->settings->utm->source;
-            if($this->link->settings->utm->medium) $utm_parameters['utm_medium'] = $this->link->settings->utm->medium;
-            if($this->link->settings->utm->campaign) $utm_parameters['utm_campaign'] = $this->link->settings->utm->campaign;
-
-            if(count($utm_parameters)) {
-                $append_query = $append_query ? $append_query . '&' . http_build_query($utm_parameters) : http_build_query($utm_parameters);
-            }
-        }
-
-        if($append_query) $append_query = '?' . $append_query;
-
         /* Check for targeting */
         if(isset($this->link->settings->targeting_type)) {
-            if($this->link->settings->targeting_type == 'continent_code') {
-                /* Detect the location */
-                try {
-                    $maxmind = (new Reader(APP_PATH . 'includes/GeoLite2-Country.mmdb'))->get(get_ip());
-                } catch(\Exception $exception) {
-                    /* :) */
-                }
-                $continent_code = isset($maxmind) && isset($maxmind['continent']) ? $maxmind['continent']['code'] : null;
-
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($continent_code == $value->key) {
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->link_user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
-                    }
-                }
-            }
-
-            if($this->link->settings->targeting_type == 'country_code') {
+            if ($this->link->settings->targeting_type == 'country_code') {
                 /* Detect the location */
                 try {
                     $maxmind = (new Reader(APP_PATH . 'includes/GeoLite2-Country.mmdb'))->get(get_ip());
@@ -779,85 +678,37 @@ class Link extends Controller {
                 }
                 $country_code = isset($maxmind) && isset($maxmind['country']) ? $maxmind['country']['iso_code'] : null;
 
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($country_code == $value->key) {
-                        /* Redirection */
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                    if ($country_code == $value->key) {
+                        $this->redirect_to($value->value);
                     }
                 }
             }
 
-            if($this->link->settings->targeting_type == 'device_type') {
+            if ($this->link->settings->targeting_type == 'device_type') {
                 $device_type = get_device_type($_SERVER['HTTP_USER_AGENT']);
 
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($device_type == $value->key) {
-                        /* Redirection */
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                    if ($device_type == $value->key) {
+                        $this->redirect_to($value->value);
                     }
                 }
             }
 
-            if($this->link->settings->targeting_type == 'os_name') {
-                /* Detect extra details about the user */
-                $whichbrowser = new \WhichBrowser\Parser($_SERVER['HTTP_USER_AGENT']);
-                $os_name = $whichbrowser->os->name ?? null;
-
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($os_name == $value->key) {
-                        /* Redirection */
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
-                    }
-                }
-            }
-
-            if($this->link->settings->targeting_type == 'browser_name') {
-                /* Detect extra details about the user */
-                $whichbrowser = new \WhichBrowser\Parser($_SERVER['HTTP_USER_AGENT']);
-                $browser_name = $whichbrowser->browser->name ?? null;
-
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($browser_name == $value->key) {
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->link_user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
-                    }
-                }
-            }
-
-            if($this->link->settings->targeting_type == 'browser_language') {
+            if ($this->link->settings->targeting_type == 'browser_language') {
                 $browser_language = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? mb_substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : null;
 
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
-                    if($browser_language == $value->key) {
-                        /* Redirection */
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                    if ($browser_language == $value->key) {
+                        $this->redirect_to($value->value);
                     }
                 }
             }
 
-            if($this->link->settings->targeting_type == 'rotation') {
+            if ($this->link->settings->targeting_type == 'rotation') {
                 $total_chances = 0;
 
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
                     $total_chances += $value->key;
                 }
 
@@ -866,75 +717,50 @@ class Link extends Controller {
                 $start = 0;
                 $end = 0;
 
-                foreach($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
                     $end += $value->key;
 
-                    if($chosen_winner >= $start && $chosen_winner <= $end) {
-                        /* Redirection */
-                        $this->redirect_to(
-                            $value->value . $append_query,
-                            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-                            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-                        );
+                    if ($chosen_winner >= $start && $chosen_winner <= $end) {
+                        $this->redirect_to($value->value);
                     }
 
                     $start += $value->key;
                 }
             }
+
+            if ($this->link->settings->targeting_type == 'os_name') {
+                /* Detect extra details about the user */
+                $whichbrowser = new \WhichBrowser\Parser($_SERVER['HTTP_USER_AGENT']);
+                $os_name = $whichbrowser->os->name ?? null;
+
+                foreach ($this->link->settings->{'targeting_' . $this->link->settings->targeting_type} as $value) {
+                    if ($os_name == $value->key) {
+                        $this->redirect_to($value->value);
+                    }
+                }
+            }
         }
 
         /* Redirection */
-        $this->redirect_to(
-            $this->link->location_url . $append_query,
-            $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false,
-            $this->user->plan_settings->app_linking_is_enabled && $this->link->settings->app_linking_is_enabled && $this->link->settings->app_linking->app ? $this->link->settings->app_linking : false,
-        );
+        $this->redirect_to($this->link->location_url, $this->user->plan_settings->cloaking_is_enabled && $this->link->settings->cloaking_is_enabled ? $this->link->settings : false);
     }
 
-    private function redirect_to($location_url, $cloaking = false, $app_linking = false) {
-        if(!count($this->link->pixels_ids) && !$cloaking && !$app_linking) {
+    private function redirect_to($location_url, $cloaking = false) {
+        if(count($this->link->pixels_ids) || $cloaking) {
 
-            /* Classic redirect */
-            header('Location: ' . $location_url, true, $this->link->settings->http_status_code ?? 301);
-            die();
+            /* Get the needed pixels */
+            $pixels = count($this->link->pixels_ids) ? (new \Altum\Models\Pixel())->get_pixels_by_pixels_ids_and_user_id($this->link->pixels_ids, $this->link->user_id) : [];
 
-        } else {
+            /* Prepare the pixels view */
+            $pixels_view = new \Altum\View('l/partials/pixels');
+            $this->add_view_content('pixels', $pixels_view->run(['pixels' => $pixels]));
 
-            /* App deep linking automatic detection */
-            if($app_linking) {
-                $whichbrowser = new \WhichBrowser\Parser($_SERVER['HTTP_USER_AGENT']);
-                $os_name = $whichbrowser->os->name ?? null;
-                $app_linking_location_url = null;
-
-                if($os_name == 'iOS') {
-                    $app_linking_location_url = $app_linking->ios_location_url;
-                }
-
-                if($os_name == 'Android') {
-                    $app_linking_location_url = $app_linking->android_location_url;
-                }
-            }
-
-            if(count($this->link->pixels_ids)) {
-                /* Get the needed pixels */
-                $pixels = count($this->link->pixels_ids) ? (new \Altum\Models\Pixel())->get_pixels_by_pixels_ids_and_user_id($this->link->pixels_ids, $this->link->user_id) : [];
-
-                /* Prepare the pixels view */
-                $pixels_view = new \Altum\View('l/partials/pixels');
-                $this->add_view_content('pixels', $pixels_view->run(['pixels' => $pixels]));
-            }
-
-            /* Prepare & Output the view */
+            /* Prepare the view */
             $pixels_redirect_wrapper = new \Altum\View('l/pixels_redirect_wrapper', (array) $this);
-
-            echo $pixels_redirect_wrapper->run([
-                'app_linking_location_url' => $app_linking_location_url ?? null,
-                'location_url' => $location_url,
-                'cloaking' => $cloaking,
-                'pixels' => $pixels ?? []
-            ]);
-
+            echo $pixels_redirect_wrapper->run(['location_url' => $location_url, 'cloaking' => $cloaking, 'pixels' => $pixels]);
             die();
+        } else {
+            header('Location: ' . $location_url, true, $this->link->settings->http_status_code ?? 301); die();
         }
     }
 
@@ -944,8 +770,8 @@ class Link extends Controller {
         }
 
         $_POST['biolink_block_id'] = (int) $_POST['biolink_block_id'];
-        $_POST['email'] = input_clean($_POST['email'], 320);
-        $_POST['name'] = input_clean($_POST['name'], 32);
+        $_POST['email'] = mb_substr(trim(query_clean($_POST['email'])), 0, 320);
+        $_POST['name'] = mb_substr(trim(query_clean($_POST['name'])), 0, 32);
 
         if(settings()->captcha->biolink_is_enabled && settings()->captcha->type != 'basic' && !(new Captcha())->is_valid()) {
             Response::json(l('global.error_message.invalid_captcha'), 'error');
@@ -958,7 +784,7 @@ class Link extends Controller {
             die();
         }
 
-        $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+        $biolink_block->settings = json_decode($biolink_block->settings);
 
         /* Get biolink data */
         $link = db()->where('link_id', $biolink_block->link_id)->getOne('links');
@@ -995,7 +821,7 @@ class Link extends Controller {
                     '{{DATA_NAME}}' => $_POST['name'],
                     '{{DATA_LINK}}' => url('data'),
                 ],
-                l('global.emails.user_data_collected_email_collector.body', $user->language)
+                l('global.emails.user_data_collected_mail.body', $user->language)
             );
 
             send_mail($biolink_block->settings->email_notification, $email_template->subject, $email_template->body, ['anti_phishing_code' => $user->anti_phishing_code, 'language' => $user->language]);
@@ -1045,6 +871,101 @@ class Link extends Controller {
 
         Response::json($biolink_block->settings->success_text, 'success', ['thank_you_url' => $biolink_block->settings->thank_you_url]);
     }
+    
+    public function tmmarket() {
+        if(empty($_POST)) {
+            die();
+        }
+
+        $_POST['biolink_block_id'] = (int) $_POST['biolink_block_id'];
+        $_POST['phone'] = mb_substr(trim(query_clean($_POST['phone'])), 0, 32);
+        $_POST['name'] = mb_substr(trim(query_clean($_POST['name'])), 0, 32);
+        
+        if(!isset($_POST['item_title'])) {
+        $_POST['item_title'] = [];
+        $_POST['item_count'] = mb_substr(trim(query_clean($_POST['item_count'])), 0, 2048);
+        }
+        $_POST['total'] = mb_substr(trim(query_clean($_POST['total'])), 0, 32);
+        $_POST['currency'] = mb_substr(trim(query_clean($_POST['currency'])), 0, 32);
+        
+        $items = "";
+        foreach($_POST['item_title'] as $key => $value) {
+            if(empty(trim($value))) continue;
+            if($key >= 100) continue;
+            
+            $items .= "ID" . $_POST['item_title'][$key] . " x " . $_POST['item_count'][$key] . " item, ";
+        } 
+
+        if(settings()->captcha->biolink_is_enabled && settings()->captcha->type != 'basic' && !(new Captcha())->is_valid()) {
+            Response::json(l('global.error_message.invalid_captcha'), 'error');
+        }
+
+        /* Get the link data */
+        $biolink_block = db()->where('biolink_block_id', $_POST['biolink_block_id'])->where('type', 'tmmarket')->getOne('biolinks_blocks', ['biolink_block_id', 'link_id', 'type', 'settings']);
+
+        if(!$biolink_block) {
+            die();
+        }
+
+        $biolink_block->settings = json_decode($biolink_block->settings);
+
+        /* Get biolink data */
+        $link = db()->where('link_id', $biolink_block->link_id)->getOne('links');
+
+        /* Get the user data */
+        $user = db()->where('user_id', $link->user_id)->getOne('users');
+        
+        $totalcur = ''.$_POST['total'].''.$_POST['currency'];
+
+        $data = [
+            'items' => $items,
+            'total' => $totalcur,
+            'phone' => $_POST['phone'],
+            'name' => $_POST['name'],
+        ];
+
+        /* Store the data */
+        db()->insert('data', [
+            'biolink_block_id' => $biolink_block->biolink_block_id,
+            'link_id' => $link->link_id,
+            'project_id' => $link->project_id,
+            'user_id' => $link->user_id,
+            'type' => $biolink_block->type,
+            'data' => json_encode($data),
+            'datetime' => Date::$date,
+        ]);
+
+       if($biolink_block->settings->email_notification) {
+            $email_template = get_email_template(
+                [
+                    '{{BLOCK_TITLE}}' => $biolink_block->settings->name,
+                ],
+                l('global.emails.user_data_collected.subject', $user->language),
+                [
+                    '{{NAME}}' => $user->name,
+                    '{{DATA_PHONE}}' => $_POST['phone'],
+                    '{{DATA_NAME}}' => $_POST['name'],
+                    '{{DATA_LINK}}' => url('data'),
+                ],
+                l('global.emails.user_data_collected_phone_collector.body', $user->language)
+            );
+
+            send_mail($biolink_block->settings->email_notification, $email_template->subject, $email_template->body, ['anti_phishing_code' => $user->anti_phishing_code, 'language' => $user->language]);
+        }
+
+        /* Send the webhook */
+        if($biolink_block->settings->webhook_url) {
+            $body = \Unirest\Request\Body::form([
+                'phone' => $_POST['phone'],
+                'name' => $_POST['name'],
+            ]);
+
+            $response = \Unirest\Request::post($biolink_block->settings->webhook_url, [], $body);
+        }
+
+
+        Response::json($biolink_block->settings->success_text, 'success', ['thank_you_url' => $biolink_block->settings->thank_you_url]);
+    }
 
     public function phone_collector() {
         if(empty($_POST)) {
@@ -1052,8 +973,8 @@ class Link extends Controller {
         }
 
         $_POST['biolink_block_id'] = (int) $_POST['biolink_block_id'];
-        $_POST['phone'] = input_clean($_POST['phone'], 32);
-        $_POST['name'] = input_clean($_POST['name'], 32);
+        $_POST['phone'] = mb_substr(trim(query_clean($_POST['phone'])), 0, 32);
+        $_POST['name'] = mb_substr(trim(query_clean($_POST['name'])), 0, 32);
 
         if(settings()->captcha->biolink_is_enabled && settings()->captcha->type != 'basic' && !(new Captcha())->is_valid()) {
             Response::json(l('global.error_message.invalid_captcha'), 'error');
@@ -1066,7 +987,7 @@ class Link extends Controller {
             die();
         }
 
-        $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+        $biolink_block->settings = json_decode($biolink_block->settings);
 
         /* Get biolink data */
         $link = db()->where('link_id', $biolink_block->link_id)->getOne('links');
@@ -1122,90 +1043,6 @@ class Link extends Controller {
         Response::json($biolink_block->settings->success_text, 'success', ['thank_you_url' => $biolink_block->settings->thank_you_url]);
     }
 
-    public function contact_collector() {
-        if(empty($_POST)) {
-            die();
-        }
-
-        $_POST['biolink_block_id'] = (int) $_POST['biolink_block_id'];
-        $_POST['phone'] = input_clean($_POST['phone'], 32);
-        $_POST['name'] = input_clean($_POST['name'], 32);
-        $_POST['email'] = input_clean($_POST['email'], 320);
-        $_POST['message'] = input_clean($_POST['message'], 512);
-
-        if(settings()->captcha->biolink_is_enabled && settings()->captcha->type != 'basic' && !(new Captcha())->is_valid()) {
-            Response::json(l('global.error_message.invalid_captcha'), 'error');
-        }
-
-        /* Get the link data */
-        $biolink_block = db()->where('biolink_block_id', $_POST['biolink_block_id'])->where('type', 'contact_collector')->getOne('biolinks_blocks', ['biolink_block_id', 'link_id', 'type', 'settings']);
-
-        if(!$biolink_block) {
-            die();
-        }
-
-        $biolink_block->settings = json_decode($biolink_block->settings ?? '');
-
-        /* Get biolink data */
-        $link = db()->where('link_id', $biolink_block->link_id)->getOne('links');
-
-        /* Get the user data */
-        $user = db()->where('user_id', $link->user_id)->getOne('users');
-
-        $data = [
-            'phone' => $_POST['phone'],
-            'email' => $_POST['email'],
-            'message' => $_POST['message'],
-            'name' => $_POST['name'],
-        ];
-
-        /* Store the data */
-        db()->insert('data', [
-            'biolink_block_id' => $biolink_block->biolink_block_id,
-            'link_id' => $link->link_id,
-            'project_id' => $link->project_id,
-            'user_id' => $link->user_id,
-            'type' => $biolink_block->type,
-            'data' => json_encode($data),
-            'datetime' => Date::$date,
-        ]);
-
-        /* Send email notifications if needed to the owner */
-        if($biolink_block->settings->email_notification) {
-            $email_template = get_email_template(
-                [
-                    '{{BLOCK_TITLE}}' => $biolink_block->settings->name,
-                ],
-                l('global.emails.user_data_collected.subject', $user->language),
-                [
-                    '{{NAME}}' => $user->name,
-                    '{{DATA_PHONE}}' => $_POST['phone'],
-                    '{{DATA_NAME}}' => $_POST['name'],
-                    '{{DATA_EMAIL}}' => $_POST['email'],
-                    '{{DATA_MESSAGE}}' => $_POST['message'],
-                    '{{DATA_LINK}}' => url('data'),
-                ],
-                l('global.emails.user_data_collected_contact_collector.body', $user->language)
-            );
-
-            send_mail($biolink_block->settings->email_notification, $email_template->subject, $email_template->body, ['anti_phishing_code' => $user->anti_phishing_code, 'language' => $user->language]);
-        }
-
-        /* Send the webhook */
-        if($biolink_block->settings->webhook_url) {
-            $body = \Unirest\Request\Body::form([
-                'phone' => $_POST['phone'],
-                'name' => $_POST['name'],
-                'email' => $_POST['email'],
-                'message' => $_POST['message'],
-            ]);
-
-            $response = \Unirest\Request::post($biolink_block->settings->webhook_url, [], $body);
-        }
-
-        Response::json($biolink_block->settings->success_text, 'success', ['thank_you_url' => $biolink_block->settings->thank_you_url]);
-    }
-
     public function payment_generator() {
         if(empty($_POST)) {
             die();
@@ -1225,7 +1062,7 @@ class Link extends Controller {
             die();
         }
 
-        $biolink_block->settings = json_decode($biolink_block->settings ?? '');
+        $biolink_block->settings = json_decode($biolink_block->settings);
 
         if(!in_array($_POST['payment_processor_id'], $biolink_block->settings->payment_processors_ids)) {
             die();
@@ -1236,7 +1073,7 @@ class Link extends Controller {
 
         /* Determine the full url of the biolink page */
         if($link->domain_id) {
-            $domain = (new Domain())->get_domain_by_domain_id($link->domain_id);
+            $domain = (new Domain())->get_domain($link->domain_id);
             $link->full_url = $domain->scheme . $domain->host . '/' . $link->url;
         } else {
             $link->full_url = SITE_URL . $link->url;
@@ -1255,18 +1092,18 @@ class Link extends Controller {
         switch($biolink_block->type) {
             case 'donation':
                 $price = $_POST['amount'] = (float) $_POST['amount'];
-                $data['message'] = $_POST['message'] = input_clean($_POST['message'] ?? null, 256);
+                $data['message'] = $_POST['message'] = mb_substr(trim(query_clean($_POST['message'] ?? null)), 0, 256);
                 break;
 
             case 'product':
                 $price = $_POST['price'] = (float) $_POST['price'];
-                $email = $_POST['email'] = input_clean($_POST['email'] ?? null, 320);
+                $email = $_POST['email'] = mb_substr(trim(query_clean($_POST['email'] ?? null)), 0, 320);
                 break;
 
             case 'service':
                 $price = $_POST['price'] = (float) $_POST['price'];
-                $email = $_POST['email'] = input_clean($_POST['email'] ?? null, 320);
-                $data['message'] = $_POST['message'] = input_clean($_POST['message'] ?? null, 256);
+                $email = $_POST['email'] = mb_substr(trim(query_clean($_POST['email'] ?? null)), 0, 320);
+                $data['message'] = $_POST['message'] = mb_substr(trim(query_clean($_POST['message'] ?? null)), 0, 256);
                 break;
         }
 
@@ -1369,7 +1206,7 @@ class Link extends Controller {
 
                 /* Initiate Stripe */
                 \Stripe\Stripe::setApiKey($payment_processor->settings->secret_key);
-                \Stripe\Stripe::setApiVersion('2023-10-16');
+                \Stripe\Stripe::setApiVersion('2020-08-27');
 
                 /* Final price */
                 $stripe_formatted_price = in_array($biolink_block->settings->currency, ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF']) ? number_format($price, 0, '.', '') : number_format($price, 2, '.', '') * 100;
@@ -1377,23 +1214,14 @@ class Link extends Controller {
                 /* Generate the stripe session */
                 try {
                     $stripe_session = \Stripe\Checkout\Session::create([
-                        'mode' => 'payment',
-                        'customer_email' => $email,
-                        'currency' => $biolink_block->settings->currency,
-
-                        'line_items' => [
-                            [
-                                'price_data' => [
-                                    'currency' => $biolink_block->settings->currency,
-                                    'product_data' => [
-                                        'name' => $biolink_block->settings->title,
-                                        'description' => $biolink_block->settings->description,
-                                    ],
-                                    'unit_amount' => $stripe_formatted_price,
-                                ],
-                                'quantity' => 1
-                            ]
-                        ],
+                        'payment_method_types' => ['card'],
+                        'line_items' => [[
+                            'name' => $biolink_block->settings->title,
+                            'description' => $biolink_block->settings->description,
+                            'amount' => $stripe_formatted_price,
+                            'currency' => $biolink_block->settings->currency,
+                            'quantity' => 1,
+                        ]],
                         'metadata' => [
                             'guest_payment_id' => $guest_payment_id,
                         ],
